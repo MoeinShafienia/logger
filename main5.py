@@ -5,28 +5,14 @@ import sys, keyboard, time, re
 import tkinter as tk
 import threading
 
-
-class ReadLine:
-    def __init__(self, s):
-        self.buf = bytearray()
-        self.s = s
-
-    def readline(self):
-        i = self.buf.find(b"\n")
-        if i >= 0:
-            r = self.buf[:i+1]
-            self.buf = self.buf[i+1:]
-            return r
-        while True:
-            i = max(1, min(2048, self.s.in_waiting))
-            data = self.s.read(i)
-            i = data.find(b"\n")
-            if i >= 0:
-                r = self.buf + data[:i+1]
-                self.buf[0:] = data[i+1:]
-                return r
-            else:
-                self.buf.extend(data)
+# Function to update the variable values and labels
+def update_variables(port, value):
+            # Replace this with your own logic to update the variables
+            # Here, we're simply incrementing two counters for demonstration purposes
+    global dict
+            # Update the labels with the new variable values
+    print(dict[port])
+    dict[port].config(text="Variable 1: " + str(value))
 
 def readSerial(port) : 
     print(sys.argv[0])
@@ -42,12 +28,9 @@ def readSerial(port) :
     ser.rtscts = False     #disable hardware (RTS/CTS) flow control
     ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
     ser.writeTimeout = 2     #timeout for write
-    rl = ReadLine(ser)
     Log = []
     c = ""
     line = ""
-    times2 = 0
-    times1 = 0
     try:
         try:
             ser.open()
@@ -59,20 +42,18 @@ def readSerial(port) :
             try:
                 while True:
                     #time.sleep(0.0001)
-                    times1 = times2
-                    times2 = time.time()
                     c = c + ser.read(1).decode('ascii')
                     if(c.endswith('\n')):
                         line = c
                         c = ""
                         print(line,end='')
-                        # update_variables(line)
+                        update_variables(port, line)
                     #data = re.split(',|\*', c)
                     if(keyboard.is_pressed('q')):
                         if(press):
                             data = re.split(',|\*', line)
                             print(data)
-                            # update_variables(data)
+                            update_variables(port, data)
                             Log.append(tuple((data[3], data[4])))
                         press = 0
                     else:
@@ -99,3 +80,34 @@ if __name__ == '__main__':
         results = []
         for port in ports:
             future = executor.submit(readSerial, port)
+
+            
+        ### new code
+        # Create the main window
+        window = tk.Tk()
+
+        # Set the window title
+        window.title("Real-time Variable Display")
+
+        # Set the window dimensions
+        window.geometry("400x300")  # Width x Height
+
+        # Initialize the variables
+        ports = ['COM30', 'COM31', 'COM32', 'COM33', ]
+        dict = {}
+        for port in ports:
+
+            # Create label widgets to display the variable values
+            variable1_label = tk.Label(window, text="Variable :")
+            variable1_label.pack()
+
+            dict[port] = variable1_label
+
+        
+
+        # Start updating the variable values and labels
+        # update_variables('nothing yet!')
+
+        # Start the Tkinter event loop
+        window.mainloop()
+        ###
