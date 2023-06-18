@@ -4,14 +4,13 @@ import serial
 import sys, keyboard, time, re
 import tkinter as tk
 import threading
-
+dict = {}
 # Function to update the variable values and labels
 def update_variables(port, value):
             # Replace this with your own logic to update the variables
             # Here, we're simply incrementing two counters for demonstration purposes
-    global dict
             # Update the labels with the new variable values
-    print(dict[port])
+    print(dict)
     dict[port].config(text="Variable 1: " + str(value))
 
 def readSerial(port) : 
@@ -47,6 +46,7 @@ def readSerial(port) :
                         line = c
                         c = ""
                         print(line,end='')
+                        print(port)
                         update_variables(port, line)
                     #data = re.split(',|\*', c)
                     if(keyboard.is_pressed('q')):
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
         # Initialize the variables
         ports = ['COM30', 'COM31', 'COM32', 'COM33', ]
-        dict = {}
+        
         for port in ports:
 
             # Create label widgets to display the variable values
@@ -102,7 +102,7 @@ if __name__ == '__main__':
             variable1_label.pack()
 
             dict[port] = variable1_label
-
+            print(dict)
         
 
         # Start updating the variable values and labels
