@@ -4,12 +4,10 @@ import serial
 import sys, keyboard, time, re
 import tkinter as tk
 import threading
-dict = {}
-# Function to update the variable values and labels
+
+dict = {"COM30" : 1, "COM31": 1, "COM32": 1, "COM33": 1}
+
 def update_variables(port, value):
-            # Replace this with your own logic to update the variables
-            # Here, we're simply incrementing two counters for demonstration purposes
-            # Update the labels with the new variable values
     print(dict)
     dict[port].config(text="Variable 1: " + str(value))
 
@@ -76,12 +74,11 @@ if __name__ == '__main__':
     # Create a ProcessPoolExecutor with 5 worker processes
     with concurrent.futures.ProcessPoolExecutor(max_workers=60) as executor:
         # Submit the function to the executor and get a Future object
-        ports = ['COM30', 'COM31', 'COM32', 'COM33']
+        ports = ["COM30", "COM31", "COM32", "COM33"]
         results = []
         for port in ports:
             future = executor.submit(readSerial, port)
 
-            
         ### new code
         # Create the main window
         window = tk.Tk()
@@ -91,9 +88,6 @@ if __name__ == '__main__':
 
         # Set the window dimensions
         window.geometry("400x300")  # Width x Height
-
-        # Initialize the variables
-        ports = ['COM30', 'COM31', 'COM32', 'COM33', ]
         
         for port in ports:
 
