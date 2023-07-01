@@ -316,11 +316,17 @@ if show_second_page is True:
     num_combos_per_column = 12
 
     # Generate the combo boxes for each column
-    combo_boxes = [[sg.Combo(get_available_com_ports(), size=(10, 1)) for _ in range(num_combos_per_column)] for _ in range(num_columns)]
-    print(combo_boxes)
+    combo_boxes = []
+    for _ in range(num_columns):
+        column = []
+        for _ in range(num_combos_per_column):
+            column.append(sg.Combo(get_available_com_ports(), size=(10, 1)))
+    combo_boxes.append(column)
 
-    for i in range(num_columns):
-        port_selection_layout.append([sg.Column(combo_boxes[i])])
+    # for i in range(num_columns):
+    #     port_selection_layout.append([sg.Column(combo_boxes[i])])
+
+    port_selection_layout = [[column for column in combo_boxes]]
 
 
     port_selection_layout.append([sg.Button("Next")])
