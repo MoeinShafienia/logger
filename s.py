@@ -7,12 +7,32 @@ import re
 import PySimpleGUI as sg
 import threading
 import csv
+import os
 
 import serial.tools.list_ports
 
 sg.theme('GrayGrayGray')
 
 data_for_save = []
+
+def select_directory_popup():
+    # Define the layout for the popup
+    layout = [
+        [sg.Text("Select a directory:")],
+        [sg.Input(), sg.FolderBrowse()],
+        [sg.Button("OK")]
+    ]
+
+    # Create the popup window
+    window = sg.Window("Popup with FolderBrowse", layout)
+
+    # Event loop for the popup
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == "OK":
+            directory_path = values[0]
+            window.close()
+            return directory_path
 
 def remove_columns_for_diff(data):
     result = []
@@ -49,13 +69,13 @@ def write_list_of_lists_to_file(path, data, ports):
     except IOError:
         print(f"Error writing to the file '{file_path}'.")
 
-def SaveData(ports):
+def SaveData(ports, directory_path):
     try:
         print(1)
         print(data_for_save)
-        write_csv_file('sample.csv', data_for_save)
-        write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
-        write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
+        write_csv_file(directory_path + '/sample.csv', data_for_save)
+        write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
+        write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
@@ -143,10 +163,10 @@ def update_gui(port, value):
 def read_serial(port):
     ser = serial.Serial()
     ser.port = port
-    ser.baudrate = 9600
-    ser.bytesize = serial.SEVENBITS
+    ser.baudrate = 19200
+    ser.bytesize = serial.EIGHTBITS
     ser.parity = serial.PARITY_NONE
-    ser.stopbits = serial.STOPBITS_TWO
+    ser.stopbits = serial.STOPBITS_ONE
     ser.timeout = 0
     ser.xonxoff = False
     ser.rtscts = False
@@ -187,9 +207,9 @@ def read_ref_serial(port):
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = 9600
-    ser.bytesize = serial.SEVENBITS
+    ser.bytesize = serial.EIGHTBITS
     ser.parity = serial.PARITY_NONE
-    ser.stopbits = serial.STOPBITS_TWO
+    ser.stopbits = serial.STOPBITS_ONE
     ser.timeout = 0
     ser.xonxoff = False
     ser.rtscts = False
@@ -204,7 +224,7 @@ def read_ref_serial(port):
 
     print('here')
     for i in range(5):
-        ser.write('*00p2')
+        ser.write('*00p2'.encode())
     print('here2')
 
     press = 1 
@@ -266,7 +286,7 @@ if show_second_page is True:
     # Create the number of ports selection page layout
     num_ports_layout = [
         [sg.Text("Select the number of ports:")],
-        [sg.Combo([1, 2, 3, 4], size=(10, 1))],
+        [sg.Combo([i for i in range(1,58)], size=(10, 1))],
         [sg.Button("Next")]
     ]
 
@@ -289,9 +309,18 @@ if show_second_page is True:
     num_ports += 2
     # Create the port selection page layout
     port_selection_layout = [[sg.Text("Select Ports:")]]
-    for i in range(num_ports):
-        port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+    # for i in range(num_ports):
+    #     port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
 
+    num_columns = num_ports // 12 + 1 
+    num_combos_per_column = 12
+
+    # Generate the combo boxes for each column
+    combo_boxes = [[sg.Combo(get_available_com_ports(), size=(10, 1)) for _ in range(num_combos_per_column)] for _ in range(num_columns)]
+    print(combo_boxes)
+
+    for i in range(num_columns):
+        port_selection_layout.append([sg.Column(combo_boxes[i])])
 
 
     port_selection_layout.append([sg.Button("Next")])
@@ -328,28 +357,28 @@ left_layout = []
 flag = 1
 for port in additional_ports:
     if(flag):
-        left_layout.append([sg.Text(f"refA")])
+        left_layout.append([sg.Text(f"refA", justification='left', font=("Calibri", 12))])
     else:
-        left_layout.append([sg.Text(f"refD")])
+        left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
     flag = 0
-    left_layout.append([sg.Text("", key=port)])
+    left_layout.append([sg.Multiline("", key=port, size=(40, 4))])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
-left_column = sg.Column(left_layout, element_justification="center")
+left_column = sg.Column(left_layout)
 
 # Create a vertical box for the right side (remaining ports)
 right_layout = []
 for index, port in enumerate(remaining_ports):
-    right_layout.append([sg.Text(f"Airdata#{index+1}")])
-    right_layout.append([sg.Text("", key=port)])
+    right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
+    right_layout.append([sg.Multiline("", key=port)])
     right_layout.append([sg.Text("", key=f"{port}_data")])
-right_column = sg.Column(right_layout, element_justification="center")
+right_column = sg.Column(right_layout)
 
 # Add the left and right columns to the main layout
 main_layout.append([left_column, sg.VSeperator(), right_column])
 
-main_layout.append([sg.Button("Capture")])  # Add a single capture button for all ports
-main_layout.append([sg.Button("Save")])  # Add a single capture button for all ports
+main_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+main_layout.append([sg.Button("Save", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
 
 # Specify the desired window size
 window_size = (1200, 600)  # Width, Height
@@ -384,7 +413,9 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 
         # Handle capture button event
         elif event == "Save":
-            SaveData(remaining_ports)
+            directory_path = select_directory_popup()
+            print(directory_path)
+            SaveData(remaining_ports, directory_path)
 
 # Close the windows
 main_window.close()
