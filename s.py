@@ -286,7 +286,7 @@ if show_second_page is True:
     # Create the number of ports selection page layout
     num_ports_layout = [
         [sg.Text("Select the number of ports:")],
-        [sg.Combo([i for i in range(1,58)], size=(10, 1))],
+        [sg.Combo([i for i in range(1, 59)], size=(10, 1))],
         [sg.Button("Next")]
     ]
 
@@ -310,18 +310,23 @@ if show_second_page is True:
     # Create the port selection page layout
     port_selection_layout = [[sg.Text("Select Ports:")]]
     # for i in range(num_ports):
-    #     port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+         #port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
 
     num_columns = num_ports // 12 + 1 
     num_combos_per_column = 12
+    num_combos_first_column = num_ports % 12
+    column = num_combos_first_column
     combo_layout = []
     combo_boxes = []
+    counter = 0
     # Generate the combo boxes for each column
     for i in range(num_columns):
-        for j in range(num_combos_per_column):
-            combo_boxes.append([sg.Combo(get_available_com_ports(), size=(10, 1))])
+        for j in range(column):
+            combo_boxes.append([sg.Text(f"{counter+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+            counter += 1
         combo_layout.append(sg.Column(combo_boxes))
         combo_boxes.clear()
+        column = num_combos_per_column
     port_selection_layout.append(combo_layout)
     port_selection_layout.append([sg.Button("Next")])
 
