@@ -12,6 +12,7 @@ import os
 import serial.tools.list_ports
 
 sg.theme('GrayGrayGray')
+# sg.theme('Topanga')
 
 data_for_save = []
 
@@ -239,15 +240,38 @@ def read_ref_serial(port):
             c = ""
     ser.close()
 # Create the initial page layout
-initial_layout = [
-    [sg.Text("Select an option:")],
-    [sg.Button("Load New Ports")],
-    [sg.Button("Load Previous Ports")]
+# initial_layout = [
+#     [sg.Text("Select an option:")],
+#     [sg.Button('Load New Ports'), sg.Button('Load Previous Ports')]
+#     # [sg.Button("Load New Ports")],
+#     # [sg.Button("Load Previous Ports")]
+# ]
+
+# initial_layout = [
+#     [sg.Column(
+#         layout=[
+#             [sg.Button('Load New Ports', size=(20, 2), font=("Calibri", 14), border_width=3), sg.Button('Load Previous Ports', size=(20, 2), font=("Calibri", 14), border_width=3)],
+#         ],
+#         justification='center',
+#         vertical_alignment='center',
+#         element_justification='center',
+#         expand_x=True,
+#         expand_y=True
+#     )]
+# ]
+
+column_to_be_centered = [
+    [sg.Button('Load New Ports', size=(20, 4), font=("Calibri", 14), border_width=3),
+        sg.Button('Load Previous Ports', size=(20, 4), font=("Calibri", 14), border_width=3)]
 ]
+
+layout = [[sg.VPush()],
+              [sg.Push(), sg.Column(column_to_be_centered,element_justification='c'), sg.Push()],
+              [sg.VPush()]]
 
 # Create the initial page window
 window_size = (1200, 600)
-initial_window = sg.Window("Serial Port Loader", initial_layout, size = window_size)
+initial_window = sg.Window("Serial Port Loader", layout, size = window_size)
 show_second_page = True
 # Event loop for the initial page
 while True:
@@ -309,7 +333,7 @@ if show_second_page is True:
     # Generate the combo boxes for each column
     for i in range(num_columns):
         for j in range(column):
-            combo_boxes.append([sg.Text(f"Airdata {(counter+1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1))])
+            combo_boxes.append([sg.Text(f"Airdata {(counter-1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1))])
             counter += 1
         combo_layout.append(sg.Column(combo_boxes, element_justification='right'))
         if (i < num_columns - 1):
@@ -358,21 +382,58 @@ for port in additional_ports:
     left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True)])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
+left_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Save", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+
 left_column = sg.Column(left_layout)
+
 
 # Create a vertical box for the right side (remaining ports)
 right_layout = []
-for index, port in enumerate(remaining_ports):
-    right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
-    right_layout.append([sg.Multiline("", key=port, no_scrollbar=True)])
-    right_layout.append([sg.Text("", key=f"{port}_data")])
-right_column = sg.Column(right_layout)
+# for index, port in enumerate(remaining_ports):
+#     if index % 2 == 0:
+#         right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
+#         right_layout.append([sg.Multiline("", key=port, no_scrollbar=True)])
+#         right_layout.append([sg.Text("", key=f"{port}_data")])
+#     else:
+#         right_layout2.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
+#         right_layout2.append([sg.Multiline("", key=port, no_scrollbar=True)])
+#         right_layout2.append([sg.Text("", key=f"{port}_data")])
+
+for index in range(len(remaining_ports) // 2):
+    a = []
+    a.append(sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)))
+    a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True))
+    a.append(sg.Text("", key=f"{remaining_ports[index]}_data"))
+
+    right_frame = sg.Frame("", [a])
+
+    a = []
+    a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
+    a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True))
+    a.append(sg.Text("", key=f"{remaining_ports[index+1]}_data"))
+
+    left_frame = sg.Frame("", [a])
+    right_layout.append([right_frame, left_frame])
+
+    # right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)), sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12))])
+    # # right_layout.append([sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12))])
+
+
+    # right_layout.append([sg.Multiline("", key=remaining_ports[index], no_scrollbar=True), sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True)])
+    # # right_layout.append([sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True)])
+    
+
+
+    # right_layout.append([sg.Text("", key=f"{remaining_ports[index]}_data"), sg.Text("", key=f"{remaining_ports[index+1]}_data")])
+    # # right_layout.append([sg.Text("", key=f"{remaining_ports[index+1]}_data")])
+
+
+
+right_column = sg.Column(right_layout, scrollable=True)
 
 # Add the left and right columns to the main layout
 main_layout.append([left_column, sg.VSeperator(), right_column])
-
-main_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
-main_layout.append([sg.Button("Save", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
 
 # Specify the desired window size
 window_size = (1200, 600)  # Width, Height
