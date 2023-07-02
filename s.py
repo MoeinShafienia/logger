@@ -237,17 +237,6 @@ def read_ref_serial(port):
             update_gui(port, line)
             # update_gui(port, line)
             c = ""
-
-        if keyboard.is_pressed('q'):
-            if press:
-                data = re.split(',|\*', line)
-                print(data)
-                update_gui(port, data)
-                # Log.append(tuple((data[3], data[4])))
-            press = 0
-        else:
-            press = 1
-
     ser.close()
 # Create the initial page layout
 initial_layout = [
@@ -405,6 +394,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     while True:
         event, values = main_window.read()
         if event == sg.WINDOW_CLOSED:
+            executor.shutdown(wait=False, cancel_futures=True)
+            sys.exit()
             break
 
         # Handle capture button event
