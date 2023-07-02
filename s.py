@@ -9,7 +9,7 @@ import PySimpleGUI as sg
 import threading
 import csv
 import os
-
+import signal
 import serial.tools.list_ports
 
 sg.theme('GrayGrayGray')
@@ -489,6 +489,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         event, values = main_window.read()
         if event == sg.WINDOW_CLOSED:
             executor.shutdown(wait=False, cancel_futures=True)
+            os.kill(os.getpid(),signal.SIGILL)
             sys.exit()
             break
 
