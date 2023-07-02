@@ -84,18 +84,19 @@ def SaveData(ports, directory_path):
 def capture(ports):
     try:
         
-        refA = data_dict[f"{ports[0]}"].DisplayText.split("=")[-1]
-        refD = data_dict[f"{ports[1]}"].DisplayText.split("=")[-1]
+        refA = data_dict[f"{ports[0]}"].get().split("=")[-1]
+        print(refA)
+        refD = data_dict[f"{ports[1]}"].get().split("=")[-1]
 
         localData = []
         localData.append(refA)
         localData.append(refD)
 
         for port in ports[2:]:
-            print(data_dict[f"{port}"].DisplayText.split(","))
-            temp = data_dict[f"{port}"].DisplayText.split(",")[3]
-            pabs = data_dict[f"{port}"].DisplayText.split(",")[4]
-            pdiff = data_dict[f"{port}"].DisplayText.split(",")[5].split("*")[0]
+            print(data_dict[f"{port}"].get().split(","))
+            temp = data_dict[f"{port}"].get().split(",")[3]
+            pabs = data_dict[f"{port}"].get().split(",")[4]
+            pdiff = data_dict[f"{port}"].get().split(",")[5].split("*")[0]
             localData.append(temp)
             localData.append(pabs)
             localData.append(pdiff)
@@ -366,7 +367,7 @@ for port in additional_ports:
     else:
         left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
     flag = 0
-    left_layout.append([sg.Multiline("", key=port, size=(40, 4))])
+    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True)])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
 left_column = sg.Column(left_layout)
@@ -375,7 +376,7 @@ left_column = sg.Column(left_layout)
 right_layout = []
 for index, port in enumerate(remaining_ports):
     right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
-    right_layout.append([sg.Multiline("", key=port)])
+    right_layout.append([sg.Multiline("", key=port, no_scrollbar=True)])
     right_layout.append([sg.Text("", key=f"{port}_data")])
 right_column = sg.Column(right_layout)
 
@@ -412,7 +413,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             # Capture data from all ports
             capture(selected_ports)
             for port in selected_ports:
-                current_data = data_dict[f"{port}"].DisplayText
+                current_data = data_dict[f"{port}"].get()
                 # TODO: Process the captured data as needed
                 # print(f"Captured data from {port}: {current_data}")
 
