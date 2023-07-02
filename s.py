@@ -401,7 +401,11 @@ right_layout = []
 #         right_layout2.append([sg.Multiline("", key=port, no_scrollbar=True)])
 #         right_layout2.append([sg.Text("", key=f"{port}_data")])
 
-for index in range(len(remaining_ports) // 2):
+for index in range(0, len(remaining_ports)):
+
+    if index % 2 == 1:
+        continue
+
     a = []
     #a.append(sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)))
     a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True, border_width=2))
@@ -409,14 +413,17 @@ for index in range(len(remaining_ports) // 2):
 
     right_frame = sg.Frame(f"Airdata#{index+1}", [a], border_width=1)
 
-    a = []
-    #a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
-    a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True, border_width=2))
-    a.append(sg.Text("", key=f"{remaining_ports[index+1]}_data"))
+    if index != len(remaining_ports) - 1:
+        a = []
+        #a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
+        a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True, border_width=2))
+        a.append(sg.Text("", key=f"{remaining_ports[index+1]}_data"))
 
-    left_frame = sg.Frame(f"Airdata#{index+2}", [a], border_width=1)
-    right_layout.append([right_frame, left_frame])
-
+        left_frame = sg.Frame(f"Airdata#{index+2}", [a], border_width=1)
+        right_layout.append([right_frame, left_frame])
+    else:
+         right_layout.append([right_frame])
+    
     # right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)), sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12))])
     # # right_layout.append([sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12))])
 
@@ -438,7 +445,7 @@ right_column = sg.Column(right_layout, scrollable=True, vertical_scroll_only=Tru
 main_layout.append([left_column, sg.VSeperator(), right_column])
 
 # Specify the desired window size
-window_size = (1200, 600)  # Width, Height
+window_size = (1200, 550)  # Width, Height
 
 # Create the main window
 main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False)
