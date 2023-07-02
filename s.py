@@ -431,7 +431,8 @@ for index in range(len(remaining_ports) // 2):
 
 
 
-right_column = sg.Column(right_layout, scrollable=True, vertical_scroll_only=True, expand_x= 20)
+right_column = sg.Column(right_layout, scrollable=True, vertical_scroll_only=True, expand_x= 20
+                         , sbar_relief='RELIEF_SOLID', sbar_width=10,sbar_trough_color='white')
 
 # Add the left and right columns to the main layout
 main_layout.append([left_column, sg.VSeperator(), right_column])
