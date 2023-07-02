@@ -24,7 +24,7 @@ def select_directory_popup():
     ]
 
     # Create the popup window
-    window = sg.Window("Popup with FolderBrowse", layout)
+    window = sg.Window("Selecting Target Folder", layout)
 
     # Event loop for the popup
     while True:
@@ -84,18 +84,19 @@ def SaveData(ports, directory_path):
 def capture(ports):
     try:
         
-        refA = data_dict[f"{ports[0]}"].DisplayText.split("=")[-1]
-        refD = data_dict[f"{ports[1]}"].DisplayText.split("=")[-1]
+        refA = data_dict[f"{ports[0]}"].get().split("=")[-1]
+        print(refA)
+        refD = data_dict[f"{ports[1]}"].get().split("=")[-1]
 
         localData = []
         localData.append(refA)
         localData.append(refD)
 
         for port in ports[2:]:
-            print(data_dict[f"{port}"].DisplayText.split(","))
-            temp = data_dict[f"{port}"].DisplayText.split(",")[3]
-            pabs = data_dict[f"{port}"].DisplayText.split(",")[4]
-            pdiff = data_dict[f"{port}"].DisplayText.split(",")[5].split("*")[0]
+            print(data_dict[f"{port}"].get().split(","))
+            temp = data_dict[f"{port}"].get().split(",")[3]
+            pabs = data_dict[f"{port}"].get().split(",")[4]
+            pdiff = data_dict[f"{port}"].get().split(",")[5].split("*")[0]
             localData.append(temp)
             localData.append(pabs)
             localData.append(pdiff)
@@ -222,10 +223,8 @@ def read_ref_serial(port):
         print("Error opening serial port: " + str(e))
         return
 
-    print('here')
     for i in range(5):
         ser.write('*00p2'.encode())
-    print('here2')
 
     press = 1 
     c = ""
@@ -238,19 +237,7 @@ def read_ref_serial(port):
             update_gui(port, line)
             # update_gui(port, line)
             c = ""
-
-        if keyboard.is_pressed('q'):
-            if press:
-                data = re.split(',|\*', line)
-                print(data)
-                update_gui(port, data)
-                # Log.append(tuple((data[3], data[4])))
-            press = 0
-        else:
-            press = 1
-
     ser.close()
-
 # Create the initial page layout
 initial_layout = [
     [sg.Text("Select an option:")],
@@ -286,7 +273,7 @@ if show_second_page is True:
     # Create the number of ports selection page layout
     num_ports_layout = [
         [sg.Text("Select the number of ports:")],
-        [sg.Combo([i for i in range(1,58)], size=(10, 1))],
+        [sg.Combo([i for i in range(1, 59)], size=(10, 1))],
         [sg.Button("Next")]
     ]
 
@@ -310,25 +297,26 @@ if show_second_page is True:
     # Create the port selection page layout
     port_selection_layout = [[sg.Text("Select Ports:")]]
     # for i in range(num_ports):
-    #     port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+        #port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
 
     num_columns = num_ports // 12 + 1 
     num_combos_per_column = 12
-
-    # Generate the combo boxes for each column
+    num_combos_first_column = num_ports % 12
+    column = num_combos_first_column
+    combo_layout = []
     combo_boxes = []
-    for _ in range(num_columns):
-        column = []
-        for _ in range(num_combos_per_column):
-            column.append(sg.Combo(get_available_com_ports(), size=(10, 1)))
-    combo_boxes.append(column)
-
-    # for i in range(num_columns):
-    #     port_selection_layout.append([sg.Column(combo_boxes[i])])
-
-    port_selection_layout = [[column for column in combo_boxes]]
-
-
+    counter = 0
+    # Generate the combo boxes for each column
+    for i in range(num_columns):
+        for j in range(column):
+            combo_boxes.append([sg.Text(f"Airdata {(counter+1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1))])
+            counter += 1
+        combo_layout.append(sg.Column(combo_boxes, element_justification='right'))
+        if (i < num_columns - 1):
+            combo_layout.append(sg.VSeperator())
+        combo_boxes.clear()
+        column = num_combos_per_column
+    port_selection_layout.append(combo_layout)
     port_selection_layout.append([sg.Button("Next")])
 
     # Create the port selection page window
@@ -367,7 +355,7 @@ for port in additional_ports:
     else:
         left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
     flag = 0
-    left_layout.append([sg.Multiline("", key=port, size=(40, 4))])
+    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True)])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
 left_column = sg.Column(left_layout)
@@ -376,7 +364,7 @@ left_column = sg.Column(left_layout)
 right_layout = []
 for index, port in enumerate(remaining_ports):
     right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12))])
-    right_layout.append([sg.Multiline("", key=port)])
+    right_layout.append([sg.Multiline("", key=port, no_scrollbar=True)])
     right_layout.append([sg.Text("", key=f"{port}_data")])
 right_column = sg.Column(right_layout)
 
@@ -406,6 +394,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     while True:
         event, values = main_window.read()
         if event == sg.WINDOW_CLOSED:
+            executor.shutdown(wait=False, cancel_futures=True)
+            sys.exit()
             break
 
         # Handle capture button event
@@ -413,7 +403,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             # Capture data from all ports
             capture(selected_ports)
             for port in selected_ports:
-                current_data = data_dict[f"{port}"].DisplayText
+                current_data = data_dict[f"{port}"].get()
                 # TODO: Process the captured data as needed
                 # print(f"Captured data from {port}: {current_data}")
 
