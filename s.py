@@ -380,13 +380,13 @@ for port in additional_ports:
     else:
         left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
     flag = 0
-    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True)])
+    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True, border_width=2)])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
 left_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
 left_layout.append([sg.Button("Save", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
 
-left_column = sg.Column(left_layout)
+left_column = sg.Column(left_layout, element_justification='center')
 
 
 # Create a vertical box for the right side (remaining ports)
@@ -403,18 +403,18 @@ right_layout = []
 
 for index in range(len(remaining_ports) // 2):
     a = []
-    a.append(sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)))
-    a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True))
+    #a.append(sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)))
+    a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True, border_width=2))
     a.append(sg.Text("", key=f"{remaining_ports[index]}_data"))
 
-    right_frame = sg.Frame("", [a])
+    right_frame = sg.Frame(f"Airdata#{index+1}", [a], border_width=1)
 
     a = []
-    a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
-    a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True))
+    #a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
+    a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True, border_width=2))
     a.append(sg.Text("", key=f"{remaining_ports[index+1]}_data"))
 
-    left_frame = sg.Frame("", [a])
+    left_frame = sg.Frame(f"Airdata#{index+2}", [a], border_width=1)
     right_layout.append([right_frame, left_frame])
 
     # right_layout.append([sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)), sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12))])
@@ -431,7 +431,7 @@ for index in range(len(remaining_ports) // 2):
 
 
 
-right_column = sg.Column(right_layout, scrollable=True)
+right_column = sg.Column(right_layout, scrollable=True, vertical_scroll_only=True, expand_x= 20)
 
 # Add the left and right columns to the main layout
 main_layout.append([left_column, sg.VSeperator(), right_column])
@@ -440,7 +440,7 @@ main_layout.append([left_column, sg.VSeperator(), right_column])
 window_size = (1200, 600)  # Width, Height
 
 # Create the main window
-main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True)
+main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False)
 main_window.bind("<space>", "space")
 main_window.bind("<Control_L><s>", "ctrl-s")
 
