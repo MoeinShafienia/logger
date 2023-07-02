@@ -17,6 +17,25 @@ sg.theme('GrayGrayGray')
 
 data_for_save = []
 
+def show_number_of_ports_popup():
+    # Define the layout for the popup
+    layout = [
+        [sg.Text("Select Number Of Ports:")],
+        [sg.Input()],
+        [sg.Button("OK")]
+    ]
+
+    # Create the popup window
+    window = sg.Window("Selecting Number Of Ports", layout)
+
+    # Event loop for the popup
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == "OK":
+            number = values[0]
+            window.close()
+            return number
+
 def select_directory_popup():
     # Define the layout for the popup
     layout = [
@@ -275,6 +294,7 @@ window_size = (1200, 600)
 initial_window = sg.Window("Serial Port Loader", layout, size = window_size)
 show_second_page = True
 # Event loop for the initial page
+num_ports = 0
 while True:
     event, values = initial_window.read()
 
@@ -282,6 +302,7 @@ while True:
     if event == sg.WINDOW_CLOSED:
         break
     elif event == "Load New Ports":
+        num_ports = int(show_number_of_ports_popup())
         # TODO: Implement the code for loading new ports
         # Show the number of ports selection page
         initial_window.hide()
@@ -295,28 +316,28 @@ while True:
         break
 
 if show_second_page is True:
-    # Create the number of ports selection page layout
-    num_ports_layout = [
-        [sg.Text("Select the number of ports:")],
-        [sg.Combo([i for i in range(1, 59)], size=(10, 1))],
-        [sg.Button("Next")]
-    ]
+    # # Create the number of ports selection page layout
+    # num_ports_layout = [
+    #     [sg.Text("Select the number of ports:")],
+    #     [sg.Combo([i for i in range(1, 59)], size=(10, 1))],
+    #     [sg.Button("Next")]
+    # ]
 
-    # Create the number of ports selection page window
-    num_ports_window = sg.Window("Number of Ports Selection", num_ports_layout)
+    # # Create the number of ports selection page window
+    # num_ports_window = sg.Window("Number of Ports Selection", num_ports_layout)
 
-    # Event loop for the number of ports selection page
-    while True:
-        event, values = num_ports_window.read()
+    # # Event loop for the number of ports selection page
+    # while True:
+    #     event, values = num_ports_window.read()
 
-        # Handle events on the number of ports selection page
-        if event == sg.WINDOW_CLOSED:
-            break
-        elif event == "Next":
-            num_ports = int(values[0])
-            # Show the port selection page with the selected number of ports
-            num_ports_window.hide()
-            break
+    #     # Handle events on the number of ports selection page
+    #     if event == sg.WINDOW_CLOSED:
+    #         break
+    #     elif event == "Next":
+    #         num_ports = int(values[0])
+    #         # Show the port selection page with the selected number of ports
+    #         num_ports_window.hide()
+    #         break
 
     num_ports += 2
     # Create the port selection page layout
@@ -355,6 +376,7 @@ if show_second_page is True:
         if event == sg.WINDOW_CLOSED:
             break
         elif event == "Next":
+            print(values)
             selected_ports = [values[i] for i in range(num_ports)]  # Exclude the "Next" button value
             source_ports = selected_ports[:2]
             save_ports(selected_ports)
