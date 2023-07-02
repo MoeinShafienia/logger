@@ -24,7 +24,7 @@ def select_directory_popup():
     ]
 
     # Create the popup window
-    window = sg.Window("Popup with FolderBrowse", layout)
+    window = sg.Window("Selecting Target Folder", layout)
 
     # Event loop for the popup
     while True:
@@ -223,10 +223,8 @@ def read_ref_serial(port):
         print("Error opening serial port: " + str(e))
         return
 
-    print('here')
     for i in range(5):
         ser.write('*00p2'.encode())
-    print('here2')
 
     press = 1 
     c = ""
@@ -251,7 +249,6 @@ def read_ref_serial(port):
             press = 1
 
     ser.close()
-
 # Create the initial page layout
 initial_layout = [
     [sg.Text("Select an option:")],
@@ -311,7 +308,7 @@ if show_second_page is True:
     # Create the port selection page layout
     port_selection_layout = [[sg.Text("Select Ports:")]]
     # for i in range(num_ports):
-         #port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+        #port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
 
     num_columns = num_ports // 12 + 1 
     num_combos_per_column = 12
@@ -323,9 +320,11 @@ if show_second_page is True:
     # Generate the combo boxes for each column
     for i in range(num_columns):
         for j in range(column):
-            combo_boxes.append([sg.Text(f"{counter+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+            combo_boxes.append([sg.Text(f"Airdata {(counter+1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1))])
             counter += 1
-        combo_layout.append(sg.Column(combo_boxes))
+        combo_layout.append(sg.Column(combo_boxes, element_justification='right'))
+        if (i < num_columns - 1):
+            combo_layout.append(sg.VSeperator())
         combo_boxes.clear()
         column = num_combos_per_column
     port_selection_layout.append(combo_layout)
