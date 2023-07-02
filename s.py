@@ -1,4 +1,5 @@
 import concurrent.futures
+from weakref import finalize
 import serial
 import sys
 import keyboard
@@ -439,7 +440,9 @@ main_layout.append([left_column, sg.VSeperator(), right_column])
 window_size = (1200, 600)  # Width, Height
 
 # Create the main window
-main_window = sg.Window("Serial Port Data", main_layout, size=window_size)
+main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True)
+main_window.bind("<space>", "space")
+main_window.bind("<Control_L><s>", "ctrl-s")
 
 # Start reading data from serial ports
 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -460,7 +463,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             break
 
         # Handle capture button event
-        if event == "Capture":
+        if event in ("Capture", "space"):
             # Capture data from all ports
             capture(selected_ports)
             for port in selected_ports:
@@ -469,7 +472,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
                 # print(f"Captured data from {port}: {current_data}")
 
         # Handle capture button event
-        elif event == "Save":
+        elif event in ("Save", "ctrl-s"):
             directory_path = select_directory_popup()
             print(directory_path)
             SaveData(remaining_ports, directory_path)
