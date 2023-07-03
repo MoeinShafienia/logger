@@ -23,11 +23,11 @@ def error_popup(message):
     # Define the layout for the popup
     layout = [
         [sg.Text(message)],
-        [sg.Button("OK")]
+        [sg.Button("OK", button_color='#494951')]
     ]
 
     # Create the popup window
-    window = sg.Window("Error", layout)
+    window = sg.Window("Error", layout, icon=r'logo2.ico')
 
     # Event loop for the popup
     while True:
@@ -41,31 +41,35 @@ def show_number_of_ports_popup():
     layout = [
         [sg.Text("Select Number Of Ports:")],
         [sg.Input()],
-        [sg.Button("OK")]
+        [sg.Button("OK", button_color='#494951')]
     ]
 
     # Create the popup window
-    window = sg.Window("Selecting Number Of Ports", layout, finalize=True)
+    window = sg.Window("Selecting Number Of Ports", layout, finalize=True, icon=r'logo2.ico')
     window.bind("<Return>", "enter")
 
     # Event loop for the popup
     while True:
         event, values = window.read()
         if event == sg.WINDOW_CLOSED or event == "OK" or event == 'enter':
-            number = values[0]
-            window.close()
-            return number
+            try:
+                number = values[0]
+                window.close()
+                return int(number)
+            except:
+                print('here2')
+                return NULL
 
 def select_directory_popup():
     # Define the layout for the popup
     layout = [
         [sg.Text("Select a directory:")],
         [sg.Input(), sg.FolderBrowse()],
-        [sg.Button("OK")]
+        [sg.Button("OK", button_color='#494951')]
     ]
 
     # Create the popup window
-    window = sg.Window("Selecting Target Folder", layout)
+    window = sg.Window("Selecting Target Folder", layout, icon=r'logo2.ico')
 
     # Event loop for the popup
     while True:
@@ -106,7 +110,7 @@ def write_list_of_lists_to_file(path, data, ports):
             for item in data:
                 line = "\t".join(str(element) for element in item)
                 file.write(line + "\n")
-        print(f"Data has been successfully written to the file '{file_path}'.")
+        print(f"Data has been successfully written to the file '{path}'.")
     except IOError:
         print(f"Error writing to the file '{file_path}'.")
 
@@ -114,9 +118,11 @@ def SaveData(ports, directory_path):
     try:
         print(1)
         print(data_for_save)
-        write_csv_file(directory_path + '/sample.csv', data_for_save)
-        write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
-        write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
+        print('dpath : ' + directory_path)
+        if str.isspace(directory_path):
+            write_csv_file(directory_path + '/sample.csv', data_for_save)
+            write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
+            write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
@@ -190,15 +196,14 @@ source_ports = []
 
 # Function to update the data in the GUI
 def update_gui(port, value):
-    print(source_ports)
+    # print(source_ports)
     if port in source_ports:
-        if port in prev_data_dict:
-            prev_data_dict[port].append(value)
-            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
-        else:
+        if port not in prev_data_dict:
             prev_data_dict[port] = []
-            prev_data_dict[port].append(value)
-            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
+        prev_data_dict[port].append(value)
+        if len(prev_data_dict[port]) > 15:
+            prev_data_dict[port].pop(0)
+        data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
     else:
         data_dict[port].Update(value)
 
@@ -303,17 +308,23 @@ def read_ref_serial(port):
 # ]
 
 column_to_be_centered = [
-    [sg.Button('Load New Ports', size=(20, 4), font=("Calibri", 14), border_width=3),
-        sg.Button('Load Previous Ports', size=(20, 4), font=("Calibri", 14), border_width=3)]
+    [sg.Button('Load New Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#494951'),
+        sg.Button('Load Previous Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#494951')]
 ]
 
 layout = [[sg.VPush()],
+                 [sg.Push(), sg.Image('logo.png',expand_x=True, expand_y=True, size=(250, 250), ), sg.Push()],
+                 [sg.Push(), sg.Text('Airdata Logger', font=("Eras Demi ITC", 36, "bold")), sg.Push()],
+                 [sg.VPush()],
+                 [sg.VPush()],
+                 [sg.VPush()],
               [sg.Push(), sg.Column(column_to_be_centered,element_justification='c'), sg.Push()],
               [sg.VPush()]]
 
 # Create the initial page window
 window_size = (1200, 600)
-initial_window = sg.Window("Serial Port Loader", layout, size = window_size)
+initial_window = sg.Window("Airdata Logger", layout, size = window_size, icon=r'logo2.ico')
+# sg.Window('Icon Test', layout, icon=r'C:\Python\taskmanager.ico').read(close=True)
 show_second_page = False
 # Event loop for the initial page
 num_ports = 0
@@ -324,12 +335,14 @@ while True:
     if event == sg.WINDOW_CLOSED:
         break
     elif event == "Load New Ports":
-        num_ports = int(show_number_of_ports_popup())
-        show_second_page = True
-        # TODO: Implement the code for loading new ports
-        # Show the number of ports selection page
-        initial_window.hide()
-        break
+        num_ports_nullable = show_number_of_ports_popup()
+        if num_ports_nullable != NULL:
+            num_ports = num_ports_nullable
+            show_second_page = True
+            # TODO: Implement the code for loading new ports
+            # Show the number of ports selection page
+            initial_window.hide()
+            break
     elif event == "Load Previous Ports":
         selected_ports = get_selected_ports_from_file()
         if(selected_ports != NULL):
@@ -387,10 +400,10 @@ if show_second_page is True:
         combo_boxes.clear()
         column = num_combos_per_column
     port_selection_layout.append(combo_layout)
-    port_selection_layout.append([sg.Button("Next")])
+    port_selection_layout.append([sg.Button("Next", button_color='#494951')])
 
     # Create the port selection page window
-    port_selection_window = sg.Window("Port Selection", port_selection_layout)
+    port_selection_window = sg.Window("Port Selection", port_selection_layout, icon=r'logo2.ico')
 
     # Event loop for the port selection page
     while True:
@@ -438,8 +451,8 @@ refd_frame.append(sg.Text("", key=f"{additional_ports[1]}_data"))
 right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
 
 left_layout.append([left_frame, right_frame])
-left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
-left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#494951')])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#494951')])  # Add a single capture button for all ports
 
 left_column = sg.Column(left_layout, element_justification='center')
 
@@ -503,7 +516,7 @@ main_layout.append([left_column, sg.VSeperator(), right_column])
 window_size = (1200, 550)  # Width, Height
 
 # Create the main window
-main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False)
+main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False, icon=r'logo2.ico')
 main_window.TKroot.focus_force()
 main_window.bind("<space>", "space")
 main_window.bind("<Control_L><s>", "ctrl-s")
