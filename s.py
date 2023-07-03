@@ -45,12 +45,13 @@ def show_number_of_ports_popup():
     ]
 
     # Create the popup window
-    window = sg.Window("Selecting Number Of Ports", layout)
+    window = sg.Window("Selecting Number Of Ports", layout, finalize=True)
+    window.bind("<Return>", "enter")
 
     # Event loop for the popup
     while True:
         event, values = window.read()
-        if event == sg.WINDOW_CLOSED or event == "OK":
+        if event == sg.WINDOW_CLOSED or event == "OK" or event == 'enter':
             number = values[0]
             window.close()
             return number
@@ -527,7 +528,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             break
 
         # Handle capture button event
-        if event in ("Capture", "space"):
+        if event == "Capture":
             # Capture data from all ports
             capture(selected_ports)
             for port in selected_ports:
