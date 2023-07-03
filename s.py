@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import concurrent.futures
 from weakref import finalize
 import serial
@@ -16,6 +17,23 @@ sg.theme('GrayGrayGray')
 # sg.theme('Topanga')
 
 data_for_save = []
+
+def error_popup(message):
+    # Define the layout for the popup
+    layout = [
+        [sg.Text(message)],
+        [sg.Button("OK")]
+    ]
+
+    # Create the popup window
+    window = sg.Window("Error", layout)
+
+    # Event loop for the popup
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == "OK":
+            window.close()
+            return NULL
 
 def show_number_of_ports_popup():
     # Define the layout for the popup
@@ -145,9 +163,11 @@ def get_selected_ports_from_file():
             selected_ports = file.read().splitlines()
         return selected_ports
     except FileNotFoundError:
-        print("File not found.")
+        error_popup("Error: config not found.")
+        return NULL
     except IOError:
-        print("Error reading the file.")
+        error_popup("Error: there is a problem opening the config file.")
+        return NULL
 
 def save_ports(ports):
     with open(file_path, 'w') as file:
@@ -245,7 +265,7 @@ def read_ref_serial(port):
         return
 
     for i in range(5):
-        ser.write('*00p2'.encode())
+        ser.write('*00p2\n'.encode())
 
     press = 1 
     c = ""
@@ -309,11 +329,12 @@ while True:
         break
     elif event == "Load Previous Ports":
         selected_ports = get_selected_ports_from_file()
-        source_ports = selected_ports[:2]
-        show_second_page = False
-        # Show the main page with previous ports
-        initial_window.hide()
-        break
+        if(selected_ports != NULL):
+            source_ports = selected_ports[:2]
+            show_second_page = False
+            # Show the main page with previous ports
+            initial_window.hide()
+            break
 
 if show_second_page is True:
     # # Create the number of ports selection page layout
@@ -355,7 +376,7 @@ if show_second_page is True:
     # Generate the combo boxes for each column
     for i in range(num_columns):
         for j in range(column):
-            combo_boxes.append([sg.Text(f"Airdata {(counter-1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1))])
+            combo_boxes.append([sg.Text(f"Airdata {(counter-1):>3}." if counter > 1 else f"RefD" if counter == 1 else f"RefA"), sg.Combo(get_available_com_ports(), size=(10, 1), key=f"-COMBO-{counter}")])
             counter += 1
         combo_layout.append(sg.Column(combo_boxes, element_justification='right'))
         if (i < num_columns - 1):
@@ -377,7 +398,12 @@ if show_second_page is True:
             break
         elif event == "Next":
             print(values)
-            selected_ports = [values[i] for i in range(num_ports)]  # Exclude the "Next" button value
+
+            selected_ports = []
+            for i in range(num_ports):
+                selected_ports.append(values[f"-COMBO-{i}"])
+
+            # selected_ports = [values[i] for i in range(num_ports)]  # Exclude the "Next" button value
             source_ports = selected_ports[:2]
             save_ports(selected_ports)
             # TODO: Implement the code to handle the selected ports
@@ -402,7 +428,7 @@ for port in additional_ports:
     else:
         left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
     flag = 0
-    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True, border_width=2)])
+    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True, border_width=2, disabled=True)])
     left_layout.append([sg.Text("", key=f"{port}_data")])
 
 left_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
@@ -430,7 +456,7 @@ for index in range(0, len(remaining_ports)):
 
     a = []
     #a.append(sg.Text(f"Airdata#{index+1}", justification='left', font=("Calibri", 12)))
-    a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True, border_width=2))
+    a.append(sg.Multiline("", key=remaining_ports[index], no_scrollbar=True, border_width=2, disabled=True))
     a.append(sg.Text("", key=f"{remaining_ports[index]}_data"))
 
     right_frame = sg.Frame(f"Airdata#{index+1}", [a], border_width=1)
@@ -438,7 +464,7 @@ for index in range(0, len(remaining_ports)):
     if index != len(remaining_ports) - 1:
         a = []
         #a.append(sg.Text(f"Airdata#{index+2}", justification='left', font=("Calibri", 12)))
-        a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True, border_width=2))
+        a.append(sg.Multiline("", key=remaining_ports[index+1], no_scrollbar=True, border_width=2, disabled=True))
         a.append(sg.Text("", key=f"{remaining_ports[index+1]}_data"))
 
         left_frame = sg.Frame(f"Airdata#{index+2}", [a], border_width=1)
@@ -460,7 +486,7 @@ for index in range(0, len(remaining_ports)):
 
 
 
-right_column = sg.Column(right_layout, scrollable=True, vertical_scroll_only=True, expand_x= True, expand_y=True
+right_column = sg.Column(right_layout, scrollable=True if len(remaining_ports) > 20 else False , vertical_scroll_only=True, expand_x= True, expand_y=True
                          , sbar_relief='RELIEF_RIDGE', sbar_width=10,sbar_trough_color='white', vertical_alignment='top')
 
 # Add the left and right columns to the main layout
@@ -471,8 +497,23 @@ window_size = (1200, 550)  # Width, Height
 
 # Create the main window
 main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False)
-main_window.bind("<space>", "space")
-main_window.bind("<Control_L><s>", "ctrl-s")
+# main_window.bind("<space>", "space")
+# main_window.bind("<Control_L><s>", "ctrl-s")
+
+keyboard_history = ''
+def handle_key_event(event):
+    global keyboard_history
+    key = event.name
+    print(key)
+    if key == 'space':
+        print('capture')
+    elif (key == 's' or key == 'S') and keyboard_history == 'ctrl':
+        print('save')
+
+    keyboard_history = key
+
+# Start keyboard listener
+keyboard.on_release(handle_key_event)
 
 # Start reading data from serial ports
 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -507,6 +548,9 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             directory_path = select_directory_popup()
             print(directory_path)
             SaveData(remaining_ports, directory_path)
+
+    # Stop keyboard listener
+    keyboard.unhook_all()
 
 # Close the windows
 main_window.close()
