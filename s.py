@@ -18,7 +18,7 @@ sg.theme('Topanga')
 
 
 data_for_save = []
-
+capture_counter = 0
 def error_popup(message):
     # Define the layout for the popup
     layout = [
@@ -120,15 +120,14 @@ def SaveData(ports, directory_path):
         print(data_for_save)
         print('dpath : ' + directory_path)
         if str.isspace(directory_path):
-            write_csv_file(directory_path + '/sample.csv', data_for_save)
-            write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
-            write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
-        else:
-            print(data_for_save)
             write_csv_file('sample.csv', data_for_save)
             write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
             write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
-
+        else:
+            write_csv_file(directory_path + '/sample.csv', data_for_save)
+            write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
+            write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
+  
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
@@ -458,7 +457,7 @@ right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
 left_layout.append([left_frame, right_frame])
 left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
 left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
-
+left_layout.append([sg.Text(f'{capture_counter}', font=("Calibri", 14), key='capcount')])
 left_column = sg.Column(left_layout, element_justification='center')
 
 
@@ -549,6 +548,9 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         # Handle capture button event
         if event in ("Capture", "space"):
             # Capture data from all ports
+            capture_counter += 1
+            main_window['capcount'].update(capture_counter)
+            print(capture_counter)
             capture(selected_ports)
             for port in selected_ports:
                 current_data = data_dict[f"{port}"].get()
