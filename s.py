@@ -23,7 +23,7 @@ def error_popup(message):
     # Define the layout for the popup
     layout = [
         [sg.Text(message)],
-        [sg.Button("OK", button_color='#494951')]
+        [sg.Button("OK", button_color='#414141')]
     ]
 
     # Create the popup window
@@ -41,7 +41,7 @@ def show_number_of_ports_popup():
     layout = [
         [sg.Text("Select Number Of Ports:")],
         [sg.Input()],
-        [sg.Button("OK", button_color='#494951')]
+        [sg.Button("OK", button_color='#414141')]
     ]
 
     # Create the popup window
@@ -65,7 +65,7 @@ def select_directory_popup():
     layout = [
         [sg.Text("Select a directory:")],
         [sg.Input(), sg.FolderBrowse()],
-        [sg.Button("OK", button_color='#494951')]
+        [sg.Button("OK", button_color='#414141')]
     ]
 
     # Create the popup window
@@ -116,13 +116,19 @@ def write_list_of_lists_to_file(path, data, ports):
 
 def SaveData(ports, directory_path):
     try:
-        print(1)
+        print('trying to save')
         print(data_for_save)
         print('dpath : ' + directory_path)
         if str.isspace(directory_path):
             write_csv_file(directory_path + '/sample.csv', data_for_save)
             write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
             write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
+        else:
+            print(data_for_save)
+            write_csv_file('sample.csv', data_for_save)
+            write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
+            write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
+
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
@@ -308,22 +314,21 @@ def read_ref_serial(port):
 # ]
 
 column_to_be_centered = [
-    [sg.Button('Load New Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#494951'),
-        sg.Button('Load Previous Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#494951')]
+    [sg.Button('Load New Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#414141'),
+        sg.Button('Load Previous Ports', size=(20, 4), font=("Calibri", 14), border_width=3, button_color='#414141')]
 ]
 
-layout = [[sg.VPush()],
-                 [sg.Push(), sg.Image('logo.png',expand_x=True, expand_y=True, size=(250, 250), ), sg.Push()],
+layout = [#[sg.VPush()],
+                 [sg.Push(), sg.Image('logo.png',expand_x=False, expand_y=False, size=(250, 250) ), sg.Push()],
                  [sg.Push(), sg.Text('Airdata Logger', font=("Eras Demi ITC", 36, "bold")), sg.Push()],
                  [sg.VPush()],
-                 [sg.VPush()],
-                 [sg.VPush()],
+
               [sg.Push(), sg.Column(column_to_be_centered,element_justification='c'), sg.Push()],
               [sg.VPush()]]
 
 # Create the initial page window
 window_size = (1200, 600)
-initial_window = sg.Window("Airdata Logger", layout, size = window_size, icon=r'logo2.ico')
+initial_window = sg.Window("Airdata Logger (Version 1.0)", layout, size = window_size, icon=r'logo2.ico')
 # sg.Window('Icon Test', layout, icon=r'C:\Python\taskmanager.ico').read(close=True)
 show_second_page = False
 # Event loop for the initial page
@@ -400,7 +405,7 @@ if show_second_page is True:
         combo_boxes.clear()
         column = num_combos_per_column
     port_selection_layout.append(combo_layout)
-    port_selection_layout.append([sg.Button("Next", button_color='#494951')])
+    port_selection_layout.append([sg.Button("Next", button_color='#414141')])
 
     # Create the port selection page window
     port_selection_window = sg.Window("Port Selection", port_selection_layout, icon=r'logo2.ico')
@@ -451,8 +456,8 @@ refd_frame.append(sg.Text("", key=f"{additional_ports[1]}_data"))
 right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
 
 left_layout.append([left_frame, right_frame])
-left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#494951')])  # Add a single capture button for all ports
-left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#494951')])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
 
 left_column = sg.Column(left_layout, element_justification='center')
 
@@ -516,10 +521,11 @@ main_layout.append([left_column, sg.VSeperator(), right_column])
 window_size = (1200, 550)  # Width, Height
 
 # Create the main window
-main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False, icon=r'logo2.ico')
+main_window = sg.Window("Airdata Logger (Version 1.0)", main_layout, size=window_size, finalize=True, use_default_focus=False, icon=r'logo2.ico')
 main_window.TKroot.focus_force()
 main_window.bind("<space>", "space")
 main_window.bind("<Control_L><s>", "ctrl-s")
+main_window.bind("<Control_L><S>", "ctrl-s")
 
 # Start reading data from serial ports
 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -541,7 +547,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             break
 
         # Handle capture button event
-        if event == "Capture":
+        if event in ("Capture", "space"):
             # Capture data from all ports
             capture(selected_ports)
             for port in selected_ports:

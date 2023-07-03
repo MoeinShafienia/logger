@@ -1,1 +1,4 @@
 my_image.py
+build/
+dist/
+s.spec
