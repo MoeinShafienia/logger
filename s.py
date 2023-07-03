@@ -12,9 +12,10 @@ import csv
 import os
 import signal
 import serial.tools.list_ports
+#sg.theme('GrayGrayGray')
+sg.theme('Topanga')
+#sg.theme('DarkBlue1')
 
-sg.theme('GrayGrayGray')
-# sg.theme('Topanga')
 
 data_for_save = []
 
@@ -192,11 +193,11 @@ def update_gui(port, value):
     if port in source_ports:
         if port in prev_data_dict:
             prev_data_dict[port].append(value)
-            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-4:])))
+            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
         else:
             prev_data_dict[port] = []
             prev_data_dict[port].append(value)
-            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-4:])))
+            data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
     else:
         data_dict[port].Update(value)
 
@@ -264,15 +265,15 @@ def read_ref_serial(port):
         print("Error opening serial port: " + str(e))
         return
 
-    for i in range(5):
-        ser.write('*00p2\n'.encode())
+    for i in range(1):
+        ser.write('*00p2\r\n'.encode())
 
     press = 1 
     c = ""
     line = ""
     while True:
         c = c + ser.read(1).decode('ascii')
-        if c.endswith('\n'):
+        if c.endswith('\r') or c.endswith('\n'):
             line = c.strip()
             print(line)
             update_gui(port, line)
@@ -312,7 +313,7 @@ layout = [[sg.VPush()],
 # Create the initial page window
 window_size = (1200, 600)
 initial_window = sg.Window("Serial Port Loader", layout, size = window_size)
-show_second_page = True
+show_second_page = False
 # Event loop for the initial page
 num_ports = 0
 while True:
@@ -323,6 +324,7 @@ while True:
         break
     elif event == "Load New Ports":
         num_ports = int(show_number_of_ports_popup())
+        show_second_page = True
         # TODO: Implement the code for loading new ports
         # Show the number of ports selection page
         initial_window.hide()
@@ -421,18 +423,22 @@ remaining_ports = selected_ports[2:]
 
 # Create a vertical box for the left side (additional ports)
 left_layout = []
-flag = 1
-for port in additional_ports:
-    if(flag):
-        left_layout.append([sg.Text(f"refA", justification='left', font=("Calibri", 12))])
-    else:
-        left_layout.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
-    flag = 0
-    left_layout.append([sg.Multiline("", key=port, size=(40, 4), no_scrollbar=True, border_width=2, disabled=True)])
-    left_layout.append([sg.Text("", key=f"{port}_data")])
+refa_frame = []
+refd_frame = []
 
-left_layout.append([sg.Button("Capture", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
-left_layout.append([sg.Button("Save", size=(20, 4), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+#refa_frame.append([sg.Text(f"refA", justification='left', font=("Calibri", 12))])
+refa_frame.append(sg.Multiline("", key=additional_ports[0], size=(15, 15), no_scrollbar=True, border_width=2, disabled=True))
+refa_frame.append(sg.Text("", key=f"{additional_ports[0]}_data"))
+left_frame = sg.Frame(f"refA", [refa_frame], border_width=1)
+
+#refd_frame.append([sg.Text(f"refD", justification='left', font=("Calibri", 12))])
+refd_frame.append(sg.Multiline("", key=additional_ports[1], size=(15, 15), no_scrollbar=True, border_width=2, disabled=True))
+refd_frame.append(sg.Text("", key=f"{additional_ports[1]}_data"))
+right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
+
+left_layout.append([left_frame, right_frame])
+left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3)])  # Add a single capture button for all ports
 
 left_column = sg.Column(left_layout, element_justification='center')
 
@@ -497,23 +503,9 @@ window_size = (1200, 550)  # Width, Height
 
 # Create the main window
 main_window = sg.Window("Serial Port Data", main_layout, size=window_size, finalize=True, use_default_focus=False)
-# main_window.bind("<space>", "space")
-# main_window.bind("<Control_L><s>", "ctrl-s")
-
-keyboard_history = ''
-def handle_key_event(event):
-    global keyboard_history
-    key = event.name
-    print(key)
-    if key == 'space':
-        print('capture')
-    elif (key == 's' or key == 'S') and keyboard_history == 'ctrl':
-        print('save')
-
-    keyboard_history = key
-
-# Start keyboard listener
-keyboard.on_release(handle_key_event)
+main_window.TKroot.focus_force()
+main_window.bind("<space>", "space")
+main_window.bind("<Control_L><s>", "ctrl-s")
 
 # Start reading data from serial ports
 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -545,12 +537,11 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 
         # Handle capture button event
         elif event in ("Save", "ctrl-s"):
+            #print('save')
             directory_path = select_directory_popup()
             print(directory_path)
             SaveData(remaining_ports, directory_path)
 
-    # Stop keyboard listener
-    keyboard.unhook_all()
 
 # Close the windows
 main_window.close()
