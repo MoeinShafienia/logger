@@ -59,12 +59,11 @@ def show_airdata_sn():
                     int(values[f"-SN-{i}"])
             except Exception as e:
                 print(e)
-                print('kose maderet')
                 port_selection_window.hide()
                 return NULL
             
             port_selection_window.hide()
-            return values
+            return list(values.values())
 
 
 data_for_save = []
@@ -154,12 +153,12 @@ def remove_columns_for_abs(data):
         result.append(new_row)
     return result
 
-def write_list_of_lists_to_file(path, data, ports):
+def write_list_of_lists_to_file(path, data, ports, sn):
     try:
         with open(path, 'w') as file:
             file.write('\t')
             for i in range(1, len(ports)+1):
-                file.write(str(i)) 
+                file.write(sn[i-1]) 
                 file.write('\t' * 2) 
             file.write('\n')  # Write a newline character
             for item in data:
@@ -169,21 +168,21 @@ def write_list_of_lists_to_file(path, data, ports):
     except IOError:
         print(f"Error writing to the file '{file_path}'.")
 
-def SaveData(ports, directory_path, save_abs, save_diff):
+def SaveData(ports, directory_path, save_abs, save_diff, sn):
     try:
         print('trying to save')
         if len(directory_path) == 0:
-            write_csv_file('sample.csv', data_for_save)
+            write_csv_file('sample.csv', data_for_save, sn)
             if save_abs:
-                write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
+                write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports, sn)
             if save_diff:
-                write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
+                write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports, sn)
         else:
-            write_csv_file(directory_path + '/sample.csv', data_for_save)
+            write_csv_file(directory_path + '/sample.csv', data_for_save, sn)
             if save_abs:
-                write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
+                write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports, sn)
             if save_diff:
-                write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
+                write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports, sn)
   
         # data_for_save = []
     except Exception as e:
@@ -231,11 +230,19 @@ def capture(ports):
         print("Error : " + str(e))
         return
 
-def write_csv_file(file_path, data):
+def write_csv_file(file_path, data, sn):
     try:
         with open(file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerows(data)
+            lst = ['refA', 'refD']
+            for i in range(len(sn)):
+                lst.append(f'Temp[{sn[i]}]')
+                lst.append(f'Pabs[{sn[i]}]')
+                lst.append(f'Pdiff[{sn[i]}]')
+            writer.writerow(lst)
+            for d in data:
+                writer.writerow(d)
+            # writer.writerows(data)
         print(f"CSV file '{file_path}' has been successfully written.")
     except IOError:
         print(f"Error writing CSV file '{file_path}'.")
@@ -638,7 +645,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
             if sn != NULL:
                 directory_path, save_abs, save_diff = select_directory_popup()
                 print(directory_path)
-                SaveData(remaining_ports, directory_path, save_abs, save_diff)
+                print(sn)
+                SaveData(remaining_ports, directory_path, save_abs, save_diff, sn)
 
         elif event == "Clear":
             data_for_save = []
