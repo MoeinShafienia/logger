@@ -54,9 +54,8 @@ def show_airdata_sn():
         if event == sg.WINDOW_CLOSED:
             return NULL
         elif event == "Next":
-
             try:
-                for i in range(airdata_port_numbers) - 1:
+                for i in range(airdata_port_numbers):
                     int(values[f"-SN-{i}"])
             except Exception as e:
                 print(e)
