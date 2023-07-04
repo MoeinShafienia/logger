@@ -16,6 +16,57 @@ import serial.tools.list_ports
 sg.theme('Topanga')
 #sg.theme('DarkBlue1')
 
+def show_airdata_sn():
+    airdata_port_numbers = len(remaining_ports)
+    # Create the port selection page layout
+    port_selection_layout = [[sg.Text("Insert Serial Numbers:")]]
+    # for i in range(num_ports):
+        #port_selection_layout.append([sg.Text(f"{i+1}."), sg.Combo(get_available_com_ports(), size=(10, 1))])
+
+    num_columns = airdata_port_numbers // 12 + 1 
+    num_combos_per_column = 12
+    num_combos_first_column = airdata_port_numbers % 12
+    column = num_combos_first_column
+    combo_layout = []
+    combo_boxes = []
+    counter = 0
+    # Generate the combo boxes for each column
+    for i in range(num_columns):
+        for j in range(column):
+            combo_boxes.append([sg.Text(f"Airdata {(counter+1)}."), sg.Input('', size=(10, 1), key=f"-SN-{counter}")])
+            counter += 1
+        combo_layout.append(sg.Column(combo_boxes, element_justification='right'))
+        if (i < num_columns - 1):
+            combo_layout.append(sg.VSeperator())
+        combo_boxes.clear()
+        column = num_combos_per_column
+    port_selection_layout.append(combo_layout)
+    port_selection_layout.append([sg.Button("Next", button_color='#414141')])
+
+    # Create the port selection page window
+    port_selection_window = sg.Window("Airdata Serial Number", port_selection_layout, icon=r'logo2.ico')
+
+    # Event loop for the port selection page
+    while True:
+        event, values = port_selection_window.read()
+
+        # Handle events on the port selection page
+        if event == sg.WINDOW_CLOSED:
+            return NULL
+        elif event == "Next":
+
+            try:
+                for i in range(airdata_port_numbers) - 1:
+                    int(values[f"-SN-{i}"])
+            except Exception as e:
+                print(e)
+                print('kose maderet')
+                port_selection_window.hide()
+                return NULL
+            
+            port_selection_window.hide()
+            return values
+
 
 data_for_save = []
 capture_counter = 0
@@ -65,6 +116,9 @@ def select_directory_popup():
     layout = [
         [sg.Text("Select a directory:")],
         [sg.Input(), sg.FolderBrowse()],
+        [sg.Text("Choose what file to save:")],
+        [sg.Checkbox('abs', key='-ABS-', default=True)],
+        [sg.Checkbox('diff', key='-DIFF-', default=True)],
         [sg.Button("OK", button_color='#414141')]
     ]
 
@@ -76,8 +130,10 @@ def select_directory_popup():
         event, values = window.read()
         if event == sg.WINDOW_CLOSED or event == "OK":
             directory_path = values[0]
+            save_abs = values['-ABS-']
+            save_diff = values['-DIFF-']
             window.close()
-            return directory_path
+            return directory_path, save_abs, save_diff
 
 def remove_columns_for_diff(data):
     result = []
@@ -114,31 +170,46 @@ def write_list_of_lists_to_file(path, data, ports):
     except IOError:
         print(f"Error writing to the file '{file_path}'.")
 
-def SaveData(ports, directory_path):
+def SaveData(ports, directory_path, save_abs, save_diff):
     try:
         print('trying to save')
-        print(data_for_save)
-        print('dpath : ' + directory_path)
-        if str.isspace(directory_path):
+        if len(directory_path) == 0:
             write_csv_file('sample.csv', data_for_save)
-            write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
-            write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
+            if save_abs:
+                write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports)
+            if save_diff:
+                write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports)
         else:
             write_csv_file(directory_path + '/sample.csv', data_for_save)
-            write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
-            write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
+            if save_abs:
+                write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports)
+            if save_diff:
+                write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports)
   
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
         return
 
+def get_ref_mode(port):
+    lst = prev_data_dict[f"{port}"][10:15]
+    mode = max(set(lst), key=lst.count)
+
+    if lst.count(mode) >= 3:
+        return mode.split("=")[-1]
+
+    lst = prev_data_dict[f"{port}"][5:15]
+    mode = max(set(lst), key=lst.count)
+
+    return mode.split("=")[-1]
+
 def capture(ports):
     try:
-        
-        refA = data_dict[f"{ports[0]}"].get().split("=")[-1]
-        print(refA)
-        refD = data_dict[f"{ports[1]}"].get().split("=")[-1]
+        refA = get_ref_mode(ports[0])
+        refD = get_ref_mode(ports[1])
+        # refA = data_dict[f"{ports[0]}"].get().split("=")[-1]
+        # print(refA)
+        # refD = data_dict[f"{ports[1]}"].get().split("=")[-1]
 
         localData = []
         localData.append(refA)
@@ -153,8 +224,10 @@ def capture(ports):
             localData.append(pabs)
             localData.append(pdiff)
 
+            # [[rafA, refB, temp1, pabs1, pdiff1, temp2, pabs2, pdiff2,], [], []]
+
         data_for_save.append(localData)
-        print(data_for_save)
+        # print(data_for_save)
     except Exception as e:
         print("Error : " + str(e))
         return
@@ -337,7 +410,9 @@ while True:
 
     # Handle events on the initial page
     if event == sg.WINDOW_CLOSED:
-        break
+        initial_window.close()
+        os.kill(os.getpid(),signal.SIGILL)
+        sys.exit()
     elif event == "Load New Ports":
         num_ports_nullable = show_number_of_ports_popup()
         if num_ports_nullable != NULL:
@@ -455,9 +530,10 @@ refd_frame.append(sg.Text("", key=f"{additional_ports[1]}_data"))
 right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
 
 left_layout.append([left_frame, right_frame])
-left_layout.append([sg.Button("Capture", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
-left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
-left_layout.append([sg.Text(f'{capture_counter}', font=("Calibri", 14), key='capcount')])
+left_layout.append([sg.Button("Capture", size=(12, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True), sg.Button("Save", size=(12, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True)])  # Add a single capture button for all ports
+# left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
+left_layout.append([sg.Button("Clear", size=(18, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True)])
+left_layout.append([sg.Text(f'{capture_counter}', font=("Calibri", 10), key='capcount')])
 left_column = sg.Column(left_layout, element_justification='center')
 
 
@@ -548,21 +624,27 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         # Handle capture button event
         if event in ("Capture", "space"):
             # Capture data from all ports
-            capture_counter += 1
-            main_window['capcount'].update(capture_counter)
-            print(capture_counter)
             capture(selected_ports)
-            for port in selected_ports:
-                current_data = data_dict[f"{port}"].get()
-                # TODO: Process the captured data as needed
-                # print(f"Captured data from {port}: {current_data}")
+            capture_counter += 1
+            if len(data_for_save):
+                main_window['capcount'].update(f"{capture_counter} : {data_for_save[-1][0:5]}")
+            else:
+                main_window['capcount'].update(f"{capture_counter}")
 
         # Handle capture button event
         elif event in ("Save", "ctrl-s"):
             #print('save')
-            directory_path = select_directory_popup()
-            print(directory_path)
-            SaveData(remaining_ports, directory_path)
+            # main_window.hide()
+            sn = show_airdata_sn()
+            if sn != NULL:
+                directory_path, save_abs, save_diff = select_directory_popup()
+                print(directory_path)
+                SaveData(remaining_ports, directory_path, save_abs, save_diff)
+
+        elif event == "Clear":
+            data_for_save = []
+            capture_counter = 0
+            main_window['capcount'].update(f"{capture_counter}")
 
 
 # Close the windows
