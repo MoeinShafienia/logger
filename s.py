@@ -241,7 +241,7 @@ def write_csv_file(file_path, data, mode, sn):
             writer = csv.writer(csvfile)
             lst = ['refA' if mode == 'abs' else 'refD']
             for i in range(len(sn)):
-                lst.append(f'Temp[{sn[i]}]')
+                lst.append(f'{sn[i]}')
                 lst.append('\t')
             writer.writerow(lst)
             for d in data:
