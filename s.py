@@ -172,17 +172,22 @@ def SaveData(ports, directory_path, save_abs, save_diff, sn):
     try:
         print('trying to save')
         if len(directory_path) == 0:
-            write_csv_file('sample.csv', data_for_save, sn)
+            #write_csv_file('sample.csv', data_for_save, sn)
             if save_abs:
                 write_list_of_lists_to_file('abs.txt', remove_columns_for_abs(data_for_save), ports, sn)
+                write_csv_file('sample_abs.csv',  remove_columns_for_abs(data_for_save), 'abs', sn)
             if save_diff:
                 write_list_of_lists_to_file('diff.txt', remove_columns_for_diff(data_for_save), ports, sn)
+                write_csv_file('sample_diff.csv',  remove_columns_for_diff(data_for_save), 'diff', sn)
         else:
-            write_csv_file(directory_path + '/sample.csv', data_for_save, sn)
+            #write_csv_file(directory_path + '/sample.csv', data_for_save, sn)
             if save_abs:
                 write_list_of_lists_to_file(directory_path + '/abs.txt', remove_columns_for_abs(data_for_save), ports, sn)
+                write_csv_file(directory_path + '/sample_abs.csv',  remove_columns_for_abs(data_for_save), 'abs', sn)
+
             if save_diff:
                 write_list_of_lists_to_file(directory_path + '/diff.txt', remove_columns_for_diff(data_for_save), ports, sn)
+                write_csv_file(directory_path + '/sample_diff.csv',  remove_columns_for_diff(data_for_save), 'diff', sn)
   
         # data_for_save = []
     except Exception as e:
@@ -230,15 +235,14 @@ def capture(ports):
         print("Error : " + str(e))
         return
 
-def write_csv_file(file_path, data, sn):
+def write_csv_file(file_path, data, mode, sn):
     try:
         with open(file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            lst = ['refA', 'refD']
+            lst = ['refA' if mode == 'abs' else 'refD']
             for i in range(len(sn)):
                 lst.append(f'Temp[{sn[i]}]')
-                lst.append(f'Pabs[{sn[i]}]')
-                lst.append(f'Pdiff[{sn[i]}]')
+                lst.append('\t')
             writer.writerow(lst)
             for d in data:
                 writer.writerow(d)
@@ -406,7 +410,7 @@ layout = [#[sg.VPush()],
 
 # Create the initial page window
 window_size = (1200, 600)
-initial_window = sg.Window("Airdata Logger (Version 1.0)", layout, size = window_size, icon=r'logo2.ico')
+initial_window = sg.Window("Airdata Logger (Version 1.1)", layout, size = window_size, icon=r'logo2.ico')
 # sg.Window('Icon Test', layout, icon=r'C:\Python\taskmanager.ico').read(close=True)
 show_second_page = False
 # Event loop for the initial page
