@@ -115,8 +115,8 @@ def select_directory_popup():
         [sg.Text("Select a directory:")],
         [sg.Input(), sg.FolderBrowse()],
         [sg.Text("Choose what file to save:")],
-        [sg.Checkbox('abs', key='-ABS-', default=True)],
-        [sg.Checkbox('diff', key='-DIFF-', default=True)],
+        [sg.Checkbox('abs', key='-ABS-', default=False)],
+        [sg.Checkbox('diff', key='-DIFF-', default=False)],
         [sg.Button("OK", button_color='#414141')]
     ]
 
