@@ -208,12 +208,16 @@ def get_ref_mode(port):
 
 def capture(ports):
     try:
-        refA = get_ref_mode(ports[0])
-        refD = get_ref_mode(ports[1])
+        print(len(prev_data_dict[f"{ports[0]}"]))
+        if len(prev_data_dict[f"{ports[0]}"]) > 5:
+            refA = get_ref_mode(ports[0])
+            refD = get_ref_mode(ports[1])
         # refA = data_dict[f"{ports[0]}"].get().split("=")[-1]
         # print(refA)
         # refD = data_dict[f"{ports[1]}"].get().split("=")[-1]
-
+        else:
+            refA = 0
+            refD = 0
         localData = []
         localData.append(refA)
         localData.append(refD)
@@ -232,7 +236,7 @@ def capture(ports):
         data_for_save.append(localData)
         # print(data_for_save)
     except Exception as e:
-        print("Error : " + str(e))
+        print("Capture Error : " + str(e))
         return
 
 def write_csv_file(file_path, data, mode, sn):
@@ -613,7 +617,7 @@ main_window.bind("<Control_L><s>", "ctrl-s")
 main_window.bind("<Control_L><S>", "ctrl-s")
 
 # Start reading data from serial ports
-with concurrent.futures.ThreadPoolExecutor() as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers = 62) as executor:
     futures = []
     for port in selected_ports:
         data_dict[port] = main_window[port]
