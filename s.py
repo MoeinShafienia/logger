@@ -18,6 +18,30 @@ sg.theme('Topanga')
 #sg.theme('DarkBlue1')
 ser_open = True
 
+def showClearWaningPopup():
+    try:
+        # Define the layout for the popup
+        layout = [
+            [sg.Text('Warning: Date will be cleared.')],
+            [sg.Button("Confirm", button_color='#414141'), sg.Button("Cancel", button_color='#414141')]
+        ]
+
+        # Create the popup window
+        window = sg.Window("Warning", layout, icon=r'logo2.ico')
+
+        # Event loop for the popup
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED or event == "Cancel":
+                window.close()
+                return NULL
+            
+            if event == "Confirm":
+                window.close()
+                return True
+    except Exception as e:
+        print(e)
+
 def print_log(data):
     with open('log.txt', 'a') as file:
         file.write(f"{datetime.now()} : {data}\n")
@@ -366,7 +390,7 @@ def read_serial(port):
             if press:
                 data = re.split(',|\*', line)
                 print(data)
-                print_logdata)
+                print_log(data)
                 update_gui(port, data)
                 # Log.append(tuple((data[3], data[4])))
             press = 0
@@ -562,8 +586,11 @@ if show_second_page is True:
 main_layout = []
 
 # Separate the additional ports from the selected ports
-additional_ports = selected_ports[:2]
-remaining_ports = selected_ports[2:]
+try:
+    additional_ports = selected_ports[:2]
+    remaining_ports = selected_ports[2:]
+except:
+    sys.exit()
 
 
 # Create a vertical box for the left side (additional ports)
@@ -718,9 +745,11 @@ with concurrent.futures.ThreadPoolExecutor(max_workers = 62) as executor:
                 SaveData(remaining_ports, directory_path, save_abs, save_diff, sn)
 
         elif event == "Clear":
-            data_for_save = []
-            capture_counter = 0
-            main_window['capcount'].update(f"{capture_counter}")
+            do_clear = showClearWaningPopup()
+            if(do_clear == True):
+                data_for_save = []
+                capture_counter = 0
+                main_window['capcount'].update(f"{capture_counter}")
 
 
 # Close the windows
