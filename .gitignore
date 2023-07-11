@@ -2,3 +2,4 @@ my_image.py
 build/
 dist/
 s.spec
+selected_ports.txt

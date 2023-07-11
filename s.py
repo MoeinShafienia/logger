@@ -91,7 +91,10 @@ def show_airdata_sn():
                 print(e)
                 print_log(e)
                 port_selection_window.hide()
-                return NULL
+                value = list(range(1, airdata_port_numbers + 1))
+                for i in range(len(value)):
+                    value[i] = str(value[i])
+                return value
             
             port_selection_window.hide()
             return list(values.values())
@@ -226,7 +229,7 @@ def SaveData(ports, directory_path, save_abs, save_diff, sn):
   
         # data_for_save = []
     except Exception as e:
-        print("Error : " + str(e))
+        print(" Save Error : " + str(e))
         print_log("Error : " + str(e))
         return
 
