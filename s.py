@@ -478,7 +478,7 @@ layout = [#[sg.VPush()],
 
 # Create the initial page window
 window_size = (1200, 600)
-initial_window = sg.Window("Airdata Logger (Version 1.1)", layout, size = window_size, icon=r'logo2.ico')
+initial_window = sg.Window("Airdata Logger (Version 1.2)", layout, size = window_size, icon=r'logo2.ico')
 # sg.Window('Icon Test', layout, icon=r'C:\Python\taskmanager.ico').read(close=True)
 show_second_page = False
 # Event loop for the initial page
@@ -677,7 +677,7 @@ main_layout.append([left_column, sg.VSeperator(), right_column])
 window_size = (1200, 550)  # Width, Height
 
 # Create the main window
-main_window = sg.Window("Airdata Logger (Version 1.1)", main_layout, size=window_size, finalize=True, use_default_focus=False, icon=r'logo2.ico')
+main_window = sg.Window("Airdata Logger (Version 1.2)", main_layout, size=window_size, finalize=True, use_default_focus=False, icon=r'logo2.ico')
 main_window.TKroot.focus_force()
 main_window.bind("<space>", "space")
 main_window.bind("<Control_L><s>", "ctrl-s")
