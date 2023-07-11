@@ -1,5 +1,6 @@
 from asyncio.windows_events import NULL
 import concurrent.futures
+from datetime import datetime
 from weakref import finalize
 import serial
 import sys
@@ -15,6 +16,11 @@ import serial.tools.list_ports
 #sg.theme('GrayGrayGray')
 sg.theme('Topanga')
 #sg.theme('DarkBlue1')
+ser_open = True
+
+def print_log(data):
+    with open('log.txt', 'a') as file:
+        file.write(f"{datetime.now()} : {data}\n")
 
 def show_airdata_sn():
     airdata_port_numbers = len(remaining_ports)
@@ -59,6 +65,7 @@ def show_airdata_sn():
                     int(values[f"-SN-{i}"])
             except Exception as e:
                 print(e)
+                print_log(e)
                 port_selection_window.hide()
                 return NULL
             
@@ -107,6 +114,7 @@ def show_number_of_ports_popup():
                 return int(number)
             except:
                 print('here2')
+                print_log('here2')
                 return NULL
 
 def select_directory_popup():
@@ -165,12 +173,15 @@ def write_list_of_lists_to_file(path, data, ports, sn):
                 line = "\t".join(str(element) for element in item)
                 file.write(line + "\n")
         print(f"Data has been successfully written to the file '{path}'.")
-    except IOError:
+        print_log(f"Data has been successfully written to the file '{path}'.")
+    except IOError as e:
         print(f"Error writing to the file '{file_path}'.")
+        print_log(f"Error writing to the file '{file_path}' {str(e)}")
 
 def SaveData(ports, directory_path, save_abs, save_diff, sn):
     try:
         print('trying to save')
+        print_log('trying to save')
         if len(directory_path) == 0:
             #write_csv_file('sample.csv', data_for_save, sn)
             if save_abs:
@@ -192,6 +203,7 @@ def SaveData(ports, directory_path, save_abs, save_diff, sn):
         # data_for_save = []
     except Exception as e:
         print("Error : " + str(e))
+        print_log("Error : " + str(e))
         return
 
 def get_ref_mode(port):
@@ -209,6 +221,7 @@ def get_ref_mode(port):
 def capture(ports):
     try:
         print(len(prev_data_dict[f"{ports[0]}"]))
+        print_log(len(prev_data_dict[f"{ports[0]}"]))
         if len(prev_data_dict[f"{ports[0]}"]) > 5:
             refA = get_ref_mode(ports[0])
             refD = get_ref_mode(ports[1])
@@ -224,6 +237,7 @@ def capture(ports):
 
         for port in ports[2:]:
             print(data_dict[f"{port}"].get().split(","))
+            print_log(data_dict[f"{port}"].get().split(","))
             temp = data_dict[f"{port}"].get().split(",")[3]
             pabs = data_dict[f"{port}"].get().split(",")[4]
             pdiff = data_dict[f"{port}"].get().split(",")[5].split("*")[0]
@@ -237,6 +251,7 @@ def capture(ports):
         # print(data_for_save)
     except Exception as e:
         print("Capture Error : " + str(e))
+        print_log("Capture Error : " + str(e))
         return
 
 def write_csv_file(file_path, data, mode, sn):
@@ -252,8 +267,10 @@ def write_csv_file(file_path, data, mode, sn):
                 writer.writerow(d)
             # writer.writerows(data)
         print(f"CSV file '{file_path}' has been successfully written.")
-    except IOError:
+        print_log(f"CSV file '{file_path}' has been successfully written.")
+    except IOError as e:
         print(f"Error writing CSV file '{file_path}'.")
+        print_log(f"Error writing CSV file '{file_path}'. {str(e)}")
 
 file_path = 'selected_ports.txt'
 
@@ -302,13 +319,15 @@ def update_gui(port, value):
 
 
 def read_serial(port):
+    print('open port')
+    print_log('open port')
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = 19200
     ser.bytesize = serial.EIGHTBITS
     ser.parity = serial.PARITY_NONE
     ser.stopbits = serial.STOPBITS_ONE
-    ser.timeout = 0
+    ser.timeout = 0.16
     ser.xonxoff = False
     ser.rtscts = False
     ser.dsrdtr = False
@@ -318,17 +337,28 @@ def read_serial(port):
         ser.open()
     except Exception as e:
         print("Error opening serial port: " + str(e))
+        print_log("Error opening serial port: " + str(e))
         return
 
+    
     press = 1 
     c = ""
     line = ""
     while True:
+        if(ser_open == False):
+            break
         c = c + ser.read(1).decode('ascii')
+        if(len(c) == 1):
+            print(f"start: {datetime.now()}")
+            print_log(f"start: {datetime.now()}")
         if c.endswith('\n'):
+            print(f"end: {datetime.now()}")
+            print_log(f"start: {datetime.now()}")
             line = c.strip()
             print(line)
+            print_log(f"start: {datetime.now()}")
             update_gui(port, line)
+            print_log(f"{datetime.now()} : {port} : {line}")
             # update_gui(port, line)
             c = ""
 
@@ -336,6 +366,7 @@ def read_serial(port):
             if press:
                 data = re.split(',|\*', line)
                 print(data)
+                print_logdata)
                 update_gui(port, data)
                 # Log.append(tuple((data[3], data[4])))
             press = 0
@@ -345,6 +376,8 @@ def read_serial(port):
     ser.close()
 
 def read_ref_serial(port):
+    print('open port')
+    print_log('open port')
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = 9600
@@ -361,6 +394,7 @@ def read_ref_serial(port):
         ser.open()
     except Exception as e:
         print("Error opening serial port: " + str(e))
+        print_log("Error opening serial port: " + str(e))
         return
 
     for i in range(1):
@@ -370,10 +404,13 @@ def read_ref_serial(port):
     c = ""
     line = ""
     while True:
+        if(ser_open == False):
+            break
         c = c + ser.read(1).decode('ascii')
         if c.endswith('\r') or c.endswith('\n'):
             line = c.strip()
             print(line)
+            print_log(line)
             update_gui(port, line)
             # update_gui(port, line)
             c = ""
@@ -507,6 +544,7 @@ if show_second_page is True:
             break
         elif event == "Next":
             print(values)
+            print_log(values)
 
             selected_ports = []
             for i in range(num_ports):
@@ -546,7 +584,7 @@ right_frame = sg.Frame(f"refD", [refd_frame], border_width=1)
 left_layout.append([left_frame, right_frame])
 left_layout.append([sg.Button("Capture", size=(12, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True), sg.Button("Save", size=(12, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True)])  # Add a single capture button for all ports
 # left_layout.append([sg.Button("Save", size=(15, 3), font=("Calibri", 14), border_width=3, button_color='#414141')])  # Add a single capture button for all ports
-left_layout.append([sg.Button("Clear", size=(18, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True)])
+left_layout.append([sg.Button("Clear", size=(18, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True), sg.Button("Refresh", size=(18, 3), font=("Calibri", 14), border_width=3, button_color='#414141', expand_x=True)])
 left_layout.append([sg.Text(f'{capture_counter}', font=("Calibri", 10), key='capcount')])
 left_column = sg.Column(left_layout, element_justification='center')
 
@@ -564,7 +602,6 @@ right_layout = []
 #         right_layout2.append([sg.Text("", key=f"{port}_data")])
 
 for index in range(0, len(remaining_ports)):
-
     if index % 2 == 1:
         continue
 
@@ -635,6 +672,28 @@ with concurrent.futures.ThreadPoolExecutor(max_workers = 62) as executor:
             sys.exit()
             break
 
+        if event == event == "Refresh":
+            ser_open = False
+            time.sleep(0.5)
+            try:
+                for f in futures:
+                    print(f.done())
+                    print_log(f.done())
+                ser_open = True
+                del futures
+                futures = []
+                for port in selected_ports:
+                    if port in additional_ports:
+                        futures.append(executor.submit(read_ref_serial, port))
+                    else:
+                        futures.append(executor.submit(read_serial, port))
+            except Exception as e:
+                print(e)
+                print_log(e)
+
+            print(1)
+            print_log(1)
+
         # Handle capture button event
         if event in ("Capture", "space"):
             # Capture data from all ports
@@ -654,6 +713,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers = 62) as executor:
                 directory_path, save_abs, save_diff = select_directory_popup()
                 print(directory_path)
                 print(sn)
+                print_log(directory_path)
+                print_log(sn)
                 SaveData(remaining_ports, directory_path, save_abs, save_diff, sn)
 
         elif event == "Clear":
