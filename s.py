@@ -662,7 +662,8 @@ def read_serial(port):
             press = 0
         else:
             press = 1
-
+    print(f"PORT {port} is closed")
+    print_log(f"PORT {port} is closed")
     ser.close()
 
 
