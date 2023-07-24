@@ -1,5 +1,7 @@
 my_image.py
 build/
 dist/
+dist.rar
 s.spec
 selected_ports.txt
+.editorconfig
