@@ -639,7 +639,7 @@ def read_serial(port):
     while True:
         if ser_open == False:
             break
-        c = c + ser.read(1).decode("ascii")
+        c = c + ser.read(1).decode("ascii", 'ignore')
         if len(c) == 1:
             print_log(f"start port {port}")
         if c.endswith("\r\n"):
