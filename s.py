@@ -54,6 +54,9 @@ def showRecordWindow():
             ),
         ]
     )  # Add a single capture button for all ports
+    record_left_layout.append(
+        [sg.Text("00:00:00", key="-TIMER-", font=("Helvetica", 20), justification="center")]
+    )  
 
     record_left_column = sg.Column(record_left_layout, element_justification="center")
 
@@ -119,12 +122,26 @@ def showRecordWindow():
             "Warning", record_main_layout, icon=r"logo2.ico", size=window_size
         )
         for port in remaining_ports:
-            data_dict2[port] = main_window[port]
-            data_dict2[f"{port}_data"] = main_window[f"{port}_data"]
+            data_dict2[port] = window[port]
+            # data_dict2[f"{port}_data"] = window[f"{port}_data"]
+
+        timer_counter = 0
 
         # Event loop for the popup
         while True:
-            event, values = window.read()
+            event, values = window.read(timeout=1000)
+            
+            # Format the timer counter into HH:MM:SS
+            hours = timer_counter // 3600
+            minutes = (timer_counter % 3600) // 60
+            seconds = timer_counter % 60
+            time_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+            window["-TIMER-"].update(time_str)
+
+            if record_mode == True:
+                timer_counter += 1
+
             if event == sg.WINDOW_CLOSED or event == "Cancel":
                 window.close()
                 return NULL
@@ -133,23 +150,34 @@ def showRecordWindow():
                 record_mode = True
 
             if event == "stop":
+                airdata_serials = show_airdata_sn()
+                if(airdata_serials == NULL):
+                    airdata_serials = []
+                    for i in range(1, len(remaining_ports) + 1):
+                        airdata_serials.append(str(i))
+                    print_log(airdata_serials)
+                location = select_raw_directory_popup()
                 record_mode = False
-                serials = show_airdata_sn()
-                if(serial != NULL):
-                    location = select_raw_directory_popup()
-                    save_record_datas(serials, location)
-                    window.close()
-                    return True
+                timer_counter = 0
+                save_record_datas(airdata_serials, location)
+                window.close()
+                return True
     except Exception as e:
         print(e)
 
 def save_record_datas(serials, location):
-    print(serials)
-    print(location)
+    print_log(serials)
+    print_log(location)
 
     for i in range(len(remaining_ports)):
-        list = record_data[i+1]
-        save_txt(f"{location}/{serials[i]}.txt", list)
+        try:
+            list = record_data[i+1]
+            if location == None:
+                save_txt(f"{os.getcwd()}/{serials[i]}.txt", list)
+            else:
+                save_txt(f"{location}/{serials[i]}.txt", list)
+        except Exception as e:
+            print_log(f'error saving record data : {e}')
 
 def save_txt(location, list):
     with open(location, "w") as file:
@@ -162,7 +190,6 @@ def refresh(executor, futures):
     time.sleep(0.2)
     try:
         for f in futures:
-            print(f.done())
             print_log(f.done())
             ser_open = True
             del futures
@@ -173,7 +200,6 @@ def refresh(executor, futures):
             else:
                 futures.append(executor.submit(read_serial, port))
     except Exception as e:
-        print(e)
         print_log(e)
 
 
@@ -206,6 +232,7 @@ def showClearWaningPopup():
 
 
 def print_log(data):
+    print(f"{datetime.now()} : {data}\n")
     with open(f"logs/{date.today()}-log.txt", "a") as file:
         file.write(f"{datetime.now()} : {data}\n")
 
@@ -259,7 +286,6 @@ def show_airdata_sn():
                 for i in range(airdata_port_numbers):
                     int(values[f"-SN-{i}"])
             except Exception as e:
-                print(e)
                 print_log(e)
                 port_selection_window.hide()
                 value = list(range(1, airdata_port_numbers + 1))
@@ -313,7 +339,6 @@ def show_number_of_ports_popup():
                 window.close()
                 return int(number)
             except:
-                print("here2")
                 print_log("here2")
                 return NULL
 
@@ -356,10 +381,13 @@ def select_raw_directory_popup():
     # Event loop for the popup
     while True:
         event, values = window.read()
-        if event == sg.WINDOW_CLOSED or event == "OK":
+        if event == "OK":
             directory_path = values[0]
             window.close()
             return directory_path
+        
+        if event == sg.WINDOW_CLOSED:
+            return None
 
 
 def remove_columns_for_diff(data):
@@ -395,16 +423,13 @@ def write_list_of_lists_to_file(path, data, ports, sn):
             for item in data:
                 line = "\t".join(str(element) for element in item)
                 file.write(line + "\n")
-        print(f"Data has been successfully written to the file '{path}'.")
         print_log(f"Data has been successfully written to the file '{path}'.")
     except IOError as e:
-        print(f"Error writing to the file '{file_path}'.")
         print_log(f"Error writing to the file '{file_path}' {str(e)}")
 
 
 def SaveData(ports, directory_path, save_abs, save_diff, sn):
     try:
-        print("trying to save")
         print_log("trying to save")
         if len(directory_path) == 0:
             # write_csv_file('sample.csv', data_for_save, sn)
@@ -457,7 +482,6 @@ def SaveData(ports, directory_path, save_abs, save_diff, sn):
 
         # data_for_save = []
     except Exception as e:
-        print(" Save Error : " + str(e))
         print_log("Error : " + str(e))
         return
 
@@ -485,7 +509,6 @@ def write_capture_temp_file(data):
 
 def capture(ports):
     try:
-        print(len(prev_data_dict[f"{ports[0]}"]))
         print_log(len(prev_data_dict[f"{ports[0]}"]))
         if len(prev_data_dict[f"{ports[0]}"]) > 5:
             refA = get_ref_mode(ports[0])
@@ -501,7 +524,6 @@ def capture(ports):
         localData.append(refD)
 
         for port in ports[2:]:
-            print(data_dict[f"{port}"].get().split(","))
             print_log(data_dict[f"{port}"].get().split(","))
             temp = data_dict[f"{port}"].get().split(",")[3]
             pabs = data_dict[f"{port}"].get().split(",")[4]
@@ -516,7 +538,6 @@ def capture(ports):
         write_capture_temp_file(data_for_save)
         # print(data_for_save)
     except Exception as e:
-        print("Capture Error : " + str(e))
         print_log("Capture Error : " + str(e))
         return
 
@@ -533,10 +554,8 @@ def write_csv_file(file_path, data, mode, sn):
             for d in data:
                 writer.writerow(d)
             # writer.writerows(data)
-        print(f"CSV file '{file_path}' has been successfully written.")
         print_log(f"CSV file '{file_path}' has been successfully written.")
     except IOError as e:
-        print(f"Error writing CSV file '{file_path}'.")
         print_log(f"Error writing CSV file '{file_path}'. {str(e)}")
 
 
@@ -595,7 +614,6 @@ def update_gui(port, value):
 def read_serial(port):
     airdata_index = remaining_ports.index(port) + 1
     print(f'airdata: {airdata_index}')
-    print(f"open port : {port}")
     print_log(f"open port : {port}")
     ser = serial.Serial()
     ser.port = port
@@ -612,7 +630,6 @@ def read_serial(port):
     try:
         ser.open()
     except Exception as e:
-        print("Error opening serial port: " + str(e))
         print_log("Error opening serial port: " + str(e))
         return
 
@@ -624,14 +641,11 @@ def read_serial(port):
             break
         c = c + ser.read(1).decode("ascii")
         if len(c) == 1:
-            print(f"start port {port}: {datetime.now()}")
             print_log(f"start port {port}")
         if c.endswith("\r\n"):
-            print(f"end port {port}: {datetime.now()}")
             print_log(f"end port {port}")
             print_log(f"characters remaining : {ser.in_waiting}")
             line = c.strip()
-            print(line)
             update_gui(port, line)
             print_log(f"data port {port} : {line}")
             if(record_mode == True):
@@ -642,7 +656,6 @@ def read_serial(port):
         if keyboard.is_pressed("q"):
             if press:
                 data = re.split(",|\*", line)
-                print(data)
                 print_log(data)
                 update_gui(port, data)
                 # Log.append(tuple((data[3], data[4])))
@@ -654,7 +667,6 @@ def read_serial(port):
 
 
 def read_ref_serial(port):
-    print(f"open port : {port}")
     print_log(f"open port : {port}")
     ser = serial.Serial()
     ser.port = port
@@ -671,7 +683,6 @@ def read_ref_serial(port):
     try:
         ser.open()
     except Exception as e:
-        print("Error opening serial port: " + str(e))
         print_log("Error opening serial port: " + str(e))
         return
 
@@ -687,7 +698,6 @@ def read_ref_serial(port):
         c = c + ser.read(1).decode("ascii")
         if c.endswith("\r") or c.endswith("\n"):
             line = c.strip()
-            print(line)
             print_log(f"data port {port} : {line}")
             update_gui(port, line)
             # update_gui(port, line)
@@ -862,7 +872,6 @@ if show_second_page is True:
         if event == sg.WINDOW_CLOSED:
             break
         elif event == "Next":
-            print(values)
             print_log(values)
 
             selected_ports = []
@@ -1118,7 +1127,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=62) as executor:
             #     print(e)
             #     print_log(e)
 
-            print(1)
             print_log(1)
 
         # Handle capture button event
@@ -1141,8 +1149,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=62) as executor:
             sn = show_airdata_sn()
             if sn != NULL:
                 directory_path, save_abs, save_diff = select_directory_popup()
-                print(directory_path)
-                print(sn)
                 print_log(directory_path)
                 print_log(sn)
                 SaveData(remaining_ports, directory_path, save_abs, save_diff, sn)

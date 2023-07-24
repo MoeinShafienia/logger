@@ -1,0 +1,276 @@
+2023-07-23 14:05:44.743237 : open port : COM31
+2023-07-23 14:05:44.744237 : open port : COM33
+2023-07-23 14:05:44.746236 : open port : COM35
+2023-07-23 14:06:43.172800 : open port : COM31
+2023-07-23 14:06:43.174801 : open port : COM33
+2023-07-23 14:06:43.178805 : open port : COM35
+2023-07-23 14:07:03.025616 : open port : COM31
+2023-07-23 14:07:03.025616 : open port : COM33
+2023-07-23 14:07:03.026618 : open port : COM35
+2023-07-23 14:08:05.923558 : open port : COM31
+2023-07-23 14:08:05.925561 : open port : COM33
+2023-07-23 14:08:05.928565 : open port : COM35
+2023-07-23 14:08:53.667744 : open port : COM31
+2023-07-23 14:08:53.675795 : open port : COM33
+2023-07-23 14:08:53.675795 : open port : COM35
+2023-07-23 14:14:55.217857 : open port : COM31
+2023-07-23 14:14:55.217857 : open port : COM33
+2023-07-23 14:14:55.220837 : open port : COM35
+2023-07-23 14:21:08.535324 : open port : COM31
+2023-07-23 14:21:08.536319 : open port : COM33
+2023-07-23 14:21:08.536319 : open port : COM35
+2023-07-23 14:21:56.676171 : open port : COM31
+2023-07-23 14:21:56.677170 : open port : COM33
+2023-07-23 14:21:56.680169 : open port : COM35
+2023-07-23 14:22:35.978189 : open port : COM31
+2023-07-23 14:22:35.979189 : open port : COM33
+2023-07-23 14:22:35.979189 : open port : COM35
+2023-07-23 14:26:24.240105 : open port : COM31
+2023-07-23 14:26:24.244109 : open port : COM33
+2023-07-23 14:26:24.247107 : open port : COM35
+2023-07-23 14:27:05.820528 : open port : COM31
+2023-07-23 14:27:05.824529 : open port : COM33
+2023-07-23 14:27:05.828531 : open port : COM35
+2023-07-23 14:42:29.856323 : open port : COM31
+2023-07-23 14:42:29.859338 : open port : COM33
+2023-07-23 14:42:29.862335 : open port : COM35
+2023-07-23 14:42:39.627483 : None
+2023-07-23 14:42:39.628480 : ['45']
+2023-07-23 14:42:39.629480 : trying to save
+2023-07-23 14:42:39.629480 : Error : object of type 'NoneType' has no len()
+2023-07-23 14:44:43.078163 : open port : COM31
+2023-07-23 14:44:43.078163 : open port : COM33
+2023-07-23 14:44:43.082168 : open port : COM35
+2023-07-23 14:46:40.763227 : open port : COM31
+2023-07-23 14:46:40.765227 : open port : COM33
+2023-07-23 14:46:40.765227 : open port : COM35
+2023-07-23 14:47:07.302774 : open port : COM31
+2023-07-23 14:47:07.302774 : open port : COM33
+2023-07-23 14:47:07.304778 : open port : COM35
+2023-07-23 14:51:22.468174 : open port : COM31
+2023-07-23 14:51:22.471182 : open port : COM33
+2023-07-23 14:51:22.473177 : open port : COM35
+2023-07-23 14:52:13.529069 : open port : COM31
+2023-07-23 14:52:13.529069 : open port : COM33
+2023-07-23 14:52:13.532068 : open port : COM35
+2023-07-23 14:55:52.022375 : open port : COM31
+2023-07-23 14:55:52.023364 : open port : COM33
+2023-07-23 14:55:52.024359 : open port : COM35
+2023-07-23 14:55:55.370591 : invalid literal for int() with base 10: ''
+2023-07-23 14:56:36.913635 : open port : COM31
+2023-07-23 14:56:36.913635 : open port : COM33
+2023-07-23 14:56:36.914635 : open port : COM35
+2023-07-23 14:56:36.915636 : open port : COM34
+2023-07-23 14:56:40.990201 : invalid literal for int() with base 10: ''
+2023-07-23 14:57:42.676892 : open port : COM31
+2023-07-23 14:57:42.678894 : open port : COM33
+2023-07-23 14:57:42.681895 : open port : COM35
+2023-07-23 14:57:42.682896 : open port : COM34
+2023-07-23 14:57:54.997542 : invalid literal for int() with base 10: ''
+2023-07-23 14:58:20.009519 : open port : COM31
+2023-07-23 14:58:20.010525 : open port : COM33
+2023-07-23 14:58:20.010525 : open port : COM35
+2023-07-23 14:58:20.011526 : open port : COM34
+2023-07-23 14:58:23.725478 : True
+2023-07-23 14:58:23.727472 : True
+2023-07-23 14:58:23.729464 : True
+2023-07-23 14:58:23.731470 : True
+2023-07-23 14:58:23.734469 : Capture Error : 'COM31'
+2023-07-23 14:58:23.735470 : open port : COM31
+2023-07-23 14:58:23.737470 : open port : COM35
+2023-07-23 14:58:23.738466 : open port : COM33
+2023-07-23 14:58:23.741468 : open port : COM34
+2023-07-23 14:58:35.152122 : open port : COM31
+2023-07-23 14:58:35.152122 : open port : COM33
+2023-07-23 14:58:35.153125 : open port : COM35
+2023-07-23 14:58:35.155126 : open port : COM34
+2023-07-23 14:58:45.758888 : invalid literal for int() with base 10: ''
+2023-07-23 15:37:06.730167 : open port : COM31
+2023-07-23 15:37:06.731167 : open port : COM33
+2023-07-23 15:37:06.732170 : open port : COM35
+2023-07-23 15:37:06.734169 : open port : COM34
+2023-07-23 15:37:27.220008 : open port : COM31
+2023-07-23 15:37:27.221008 : open port : COM33
+2023-07-23 15:37:27.225009 : open port : COM35
+2023-07-23 15:37:27.228012 : open port : COM34
+2023-07-23 15:38:56.983508 : open port : COM31
+2023-07-23 15:38:56.985508 : open port : COM33
+2023-07-23 15:38:56.987509 : open port : COM35
+2023-07-23 15:38:59.052544 : data port COM31 : ?01CP=12
+2023-07-23 15:39:00.030093 : data port COM33 : ?01CP=12
+2023-07-23 15:39:00.880415 : start port COM35
+2023-07-23 15:39:00.893416 : end port COM35
+2023-07-23 15:39:00.894425 : characters remaining : 0
+2023-07-23 15:39:00.896417 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:39:04.911960 : start port COM35
+2023-07-23 15:39:04.923960 : end port COM35
+2023-07-23 15:39:04.923960 : characters remaining : 0
+2023-07-23 15:39:04.925960 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:39:05.647961 : start port COM35
+2023-07-23 15:39:05.659960 : end port COM35
+2023-07-23 15:39:05.660960 : characters remaining : 0
+2023-07-23 15:39:05.662960 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:39:14.921798 : start port COM35
+2023-07-23 15:39:14.933801 : end port COM35
+2023-07-23 15:39:14.933801 : characters remaining : 0
+2023-07-23 15:39:14.936799 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:40:21.074794 : open port : COM31
+2023-07-23 15:40:21.074794 : open port : COM33
+2023-07-23 15:40:21.078791 : open port : COM35
+2023-07-23 15:40:22.553378 : start port COM35
+2023-07-23 15:40:22.565378 : end port COM35
+2023-07-23 15:40:22.566379 : characters remaining : 0
+2023-07-23 15:40:22.571379 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:40:25.251868 : start port COM35
+2023-07-23 15:40:25.264872 : end port COM35
+2023-07-23 15:40:25.265875 : characters remaining : 0
+2023-07-23 15:40:25.267877 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:40:25.487871 : start port COM35
+2023-07-23 15:40:25.499871 : end port COM35
+2023-07-23 15:40:25.500871 : characters remaining : 0
+2023-07-23 15:40:25.501873 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:40:29.113153 : invalid literal for int() with base 10: 't'
+2023-07-23 15:41:15.078897 : open port : COM31
+2023-07-23 15:41:15.078897 : open port : COM33
+2023-07-23 15:41:15.080900 : open port : COM35
+2023-07-23 15:41:18.085600 : start port COM35
+2023-07-23 15:41:18.097594 : end port COM35
+2023-07-23 15:41:18.098594 : characters remaining : 0
+2023-07-23 15:41:18.100594 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:41:18.306590 : start port COM35
+2023-07-23 15:41:18.318592 : end port COM35
+2023-07-23 15:41:18.319594 : characters remaining : 0
+2023-07-23 15:41:18.321592 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:41:26.184492 : invalid literal for int() with base 10: 'trrr'
+2023-07-23 15:42:01.658985 : open port : COM31
+2023-07-23 15:42:01.659988 : open port : COM33
+2023-07-23 15:42:01.661988 : open port : COM35
+2023-07-23 15:42:04.841805 : start port COM35
+2023-07-23 15:42:04.856125 : end port COM35
+2023-07-23 15:42:04.857125 : characters remaining : 0
+2023-07-23 15:42:04.858126 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:42:04.972123 : start port COM35
+2023-07-23 15:42:04.985127 : end port COM35
+2023-07-23 15:42:04.986126 : characters remaining : 0
+2023-07-23 15:42:04.987127 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:42:08.085980 : invalid literal for int() with base 10: ''
+2023-07-23 15:43:32.466628 : open port : COM31
+2023-07-23 15:43:32.467633 : open port : COM33
+2023-07-23 15:43:32.469636 : open port : COM35
+2023-07-23 15:43:36.369816 : start port COM35
+2023-07-23 15:43:36.383820 : end port COM35
+2023-07-23 15:43:36.384818 : characters remaining : 0
+2023-07-23 15:43:36.386821 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:43:36.530817 : start port COM35
+2023-07-23 15:43:36.541816 : end port COM35
+2023-07-23 15:43:36.542818 : characters remaining : 0
+2023-07-23 15:43:36.545820 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:46:42.273019 : open port : COM31
+2023-07-23 15:46:42.274027 : open port : COM33
+2023-07-23 15:46:42.277023 : open port : COM35
+2023-07-23 15:46:48.546407 : start port COM35
+2023-07-23 15:46:48.559411 : end port COM35
+2023-07-23 15:46:48.559411 : characters remaining : 0
+2023-07-23 15:46:48.561408 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:48:00.331802 : open port : COM31
+2023-07-23 15:48:00.332805 : open port : COM33
+2023-07-23 15:48:00.335810 : open port : COM35
+2023-07-23 15:48:00.337806 : open port : COM36
+2023-07-23 15:48:00.339818 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:48:38.471311 : open port : COM31
+2023-07-23 15:48:38.473310 : open port : COM33
+2023-07-23 15:48:38.476322 : open port : COM35
+2023-07-23 15:48:38.477310 : open port : COM36
+2023-07-23 15:48:38.478309 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:48:42.981889 : invalid literal for int() with base 10: ''
+2023-07-23 15:48:59.231961 : open port : COM31
+2023-07-23 15:48:59.232963 : open port : COM33
+2023-07-23 15:48:59.233965 : open port : COM35
+2023-07-23 15:48:59.235971 : open port : COM36
+2023-07-23 15:48:59.236962 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:50:35.629142 : open port : COM31
+2023-07-23 15:50:35.630144 : open port : COM33
+2023-07-23 15:50:35.631147 : open port : COM35
+2023-07-23 15:50:35.632146 : open port : COM36
+2023-07-23 15:50:35.634152 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:50:39.279114 : start port COM35
+2023-07-23 15:50:39.291113 : end port COM35
+2023-07-23 15:50:39.292112 : characters remaining : 0
+2023-07-23 15:50:39.295115 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:50:39.864111 : start port COM35
+2023-07-23 15:50:39.876116 : end port COM35
+2023-07-23 15:50:39.877119 : characters remaining : 0
+2023-07-23 15:50:39.879112 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:57:23.353177 : open port : COM31
+2023-07-23 15:57:23.354177 : open port : COM33
+2023-07-23 15:57:23.360199 : open port : COM36
+2023-07-23 15:57:23.361176 : open port : COM35
+2023-07-23 15:57:23.361176 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:57:43.784402 : open port : COM31
+2023-07-23 15:57:43.785404 : open port : COM33
+2023-07-23 15:57:43.786403 : open port : COM35
+2023-07-23 15:57:43.789405 : open port : COM36
+2023-07-23 15:57:43.790413 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 15:57:50.267154 : start port COM35
+2023-07-23 15:57:50.280154 : end port COM35
+2023-07-23 15:57:50.280154 : characters remaining : 0
+2023-07-23 15:57:50.282156 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:57:50.737155 : start port COM35
+2023-07-23 15:57:50.749157 : end port COM35
+2023-07-23 15:57:50.750156 : characters remaining : 0
+2023-07-23 15:57:50.752164 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:57:51.004452 : start port COM35
+2023-07-23 15:57:51.016454 : end port COM35
+2023-07-23 15:57:51.017456 : characters remaining : 0
+2023-07-23 15:57:51.019459 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:57:51.343453 : start port COM35
+2023-07-23 15:57:51.356456 : end port COM35
+2023-07-23 15:57:51.357455 : characters remaining : 0
+2023-07-23 15:57:51.359458 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 15:57:52.124455 : start port COM35
+2023-07-23 15:57:52.137457 : end port COM35
+2023-07-23 15:57:52.138454 : characters remaining : 0
+2023-07-23 15:57:52.140455 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 16:05:51.786311 : open port : COM31
+2023-07-23 16:05:51.787312 : open port : COM33
+2023-07-23 16:05:51.788312 : open port : COM35
+2023-07-23 16:05:51.790316 : open port : COM36
+2023-07-23 16:05:51.792312 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 16:05:55.726859 : start port COM35
+2023-07-23 16:05:55.739865 : end port COM35
+2023-07-23 16:05:55.740865 : characters remaining : 0
+2023-07-23 16:05:55.742862 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 16:05:56.328860 : start port COM35
+2023-07-23 16:05:56.341867 : end port COM35
+2023-07-23 16:05:56.342862 : characters remaining : 0
+2023-07-23 16:05:56.345865 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 16:09:54.681180 : open port : COM31
+2023-07-23 16:09:54.682191 : open port : COM33
+2023-07-23 16:09:54.685185 : open port : COM35
+2023-07-23 16:09:54.689192 : open port : COM36
+2023-07-23 16:09:54.691187 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 16:09:57.798126 : start port COM35
+2023-07-23 16:09:57.811128 : end port COM35
+2023-07-23 16:09:57.812132 : characters remaining : 0
+2023-07-23 16:09:57.815129 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 16:10:02.352166 : open port : COM31
+2023-07-23 16:10:02.354171 : open port : COM33
+2023-07-23 16:10:02.355169 : open port : COM35
+2023-07-23 16:10:02.357168 : open port : COM36
+2023-07-23 16:10:02.360170 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 16:10:03.530774 : start port COM35
+2023-07-23 16:10:03.542776 : end port COM35
+2023-07-23 16:10:03.543780 : characters remaining : 0
+2023-07-23 16:33:40.109804 : open port : COM31
+2023-07-23 16:33:40.109804 : open port : COM33
+2023-07-23 16:33:40.118805 : open port : COM35
+2023-07-23 16:33:40.119805 : open port : COM36
+2023-07-23 16:33:40.120805 : Error opening serial port: could not open port 'COM36': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2023-07-23 16:33:47.505285 : start port COM35
+2023-07-23 16:33:47.519286 : end port COM35
+2023-07-23 16:33:47.519286 : characters remaining : 0
+2023-07-23 16:33:47.522285 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
+2023-07-23 16:33:47.655287 : start port COM35
+2023-07-23 16:33:47.667286 : end port COM35
+2023-07-23 16:33:47.668286 : characters remaining : 0
+2023-07-23 16:33:47.670288 : data port COM35 : $PTAHADC, 'B', 0.0, 25.5,3.666,0.001*AN
