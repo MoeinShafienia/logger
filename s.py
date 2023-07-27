@@ -21,15 +21,13 @@ ser_open = True
 record_mode = False
 record_data = {}
 
-def add_to_record_data(index, data):
-    try:
-        record_data[index].append(data)
-    except:
-        record_data[index] = []
-        record_data[index].append(data)
+record_location = None
+record_airdata_serials = NULL
 
 def showRecordWindow():
     global record_mode
+    global record_location
+    global record_airdata_serials
     record_main_layout = []
     # Create a vertical box for the left side (additional ports)
     record_left_layout = []
@@ -53,7 +51,19 @@ def showRecordWindow():
                 expand_x=True,
             ),
         ]
-    )  # Add a single capture button for all ports
+    ) 
+    record_left_layout.append(
+        [
+            sg.Button(
+                "back",
+                size=(12, 3),
+                font=("Calibri", 14),
+                border_width=3,
+                button_color="#414141",
+                expand_x=True,
+            ),
+        ]
+    )  
     record_left_layout.append(
         [sg.Text("00:00:00", key="-TIMER-", font=("Helvetica", 20), justification="center")]
     )  
@@ -119,7 +129,7 @@ def showRecordWindow():
         # Create the popup window
         window_size = (1200, 650)  # Width, Height
         window = sg.Window(
-            "Warning", record_main_layout, icon=r"logo2.ico", size=window_size
+            "Record", record_main_layout, icon=r"logo2.ico", size=window_size
         )
         for port in remaining_ports:
             data_dict2[port] = window[port]
@@ -148,41 +158,51 @@ def showRecordWindow():
             
             if event == "start":
                 record_mode = True
+                record_airdata_serials = show_airdata_sn()
+                if(record_airdata_serials == NULL):
+                    record_airdata_serials = []
+                    for i in range(1, len(remaining_ports) + 1):
+                        record_airdata_serials.append(str(i))
+                    print_log(record_airdata_serials)
+                record_location = select_raw_directory_popup()
+                print_log(record_airdata_serials)
+                print_log(record_location)
+
+            if event == "back":
+                window.close()
+                return 1
 
             if event == "stop":
-                airdata_serials = show_airdata_sn()
-                if(airdata_serials == NULL):
-                    airdata_serials = []
-                    for i in range(1, len(remaining_ports) + 1):
-                        airdata_serials.append(str(i))
-                    print_log(airdata_serials)
-                location = select_raw_directory_popup()
                 record_mode = False
                 timer_counter = 0
-                save_record_datas(airdata_serials, location)
                 window.close()
                 return True
     except Exception as e:
         print(e)
 
-def save_record_datas(serials, location):
-    print_log(serials)
+def save_record_datas(index, data):
+
+    try:
+        filename = record_airdata_serials[index]
+        location = record_location
+        if location == None or location == NULL or location == '':
+            location = os.getcwd()
+        save_txt(f"{location}/{filename}.txt", data)
+    except Exception as e:
+        print_log(f'error saving record data : {e}')
+        print_log(record_airdata_serials)
+        print_log(record_location)
+        print_log(location)
+        print_log(filename)
+
+    
+
+def save_txt(location, data):
+    print_log('saving')
     print_log(location)
-
-    for i in range(len(remaining_ports)):
-        try:
-            list = record_data[i+1]
-            if location == None:
-                save_txt(f"{os.getcwd()}/{serials[i]}.txt", list)
-            else:
-                save_txt(f"{location}/{serials[i]}.txt", list)
-        except Exception as e:
-            print_log(f'error saving record data : {e}')
-
-def save_txt(location, list):
-    with open(location, "w") as file:
-        for data in list:
-            file.write(f"{data}\n")
+    print_log(data)
+    with open(location, "a") as file:
+        file.write(f"{data}\n")
 
 def refresh(executor, futures):
     global ser_open
@@ -649,7 +669,7 @@ def read_serial(port):
             update_gui(port, line)
             print_log(f"data port {port} : {line}")
             if(record_mode == True):
-                add_to_record_data(airdata_index, line)
+                save_record_datas(airdata_index, line)
             # update_gui(port, line)
             c = ""
 
@@ -1103,9 +1123,11 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=62) as executor:
 
         if event == "Record":
             main_window.hide()
-            showRecordWindow()
-            os.kill(os.getpid(), signal.SIGILL)
-            sys.exit()
+            record_result = showRecordWindow()
+            if(record_result != 1):
+                os.kill(os.getpid(), signal.SIGILL)
+                sys.exit()
+            main_window.un_hide()
 
         if event == "Refresh":
             refresh(executor, futures)
