@@ -659,7 +659,7 @@ def read_serial(port):
     while True:
         if ser_open == False:
             break
-        c = c + ser.read(1).decode("ascii")
+        c = c + ser.read(1).decode("ascii", 'ignore')
         if len(c) == 1:
             print_log(f"start port {port}")
         if c.endswith("\r\n"):
@@ -682,7 +682,8 @@ def read_serial(port):
             press = 0
         else:
             press = 1
-
+    print(f"PORT {port} is closed")
+    print_log(f"PORT {port} is closed")
     ser.close()
 
 
