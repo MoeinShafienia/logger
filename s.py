@@ -23,6 +23,7 @@ record_data = {}
 
 record_location = None
 record_airdata_serials = NULL
+show_record_page = False
 
 def showRecordWindow():
     global record_mode
@@ -86,6 +87,7 @@ def showRecordWindow():
                 no_scrollbar=True,
                 border_width=2,
                 disabled=True,
+                size=(55,3)
             )
         )
         record_a.append(sg.Text("", key=f"{remaining_ports[index]}"))
@@ -102,6 +104,7 @@ def showRecordWindow():
                     no_scrollbar=True,
                     border_width=2,
                     disabled=True,
+                    size=(55,3)
                 )
             )
             record_a.append(sg.Text("", key=f"{remaining_ports[index+1]}"))
@@ -133,11 +136,9 @@ def showRecordWindow():
         )
         for port in remaining_ports:
             data_dict2[port] = window[port]
-            # data_dict2[f"{port}_data"] = window[f"{port}_data"]
 
         timer_counter = 0
 
-        # Event loop for the popup
         while True:
             event, values = window.read(timeout=1000)
             
@@ -157,7 +158,6 @@ def showRecordWindow():
                 return NULL
             
             if event == "start":
-                record_mode = True
                 record_airdata_serials = show_airdata_sn()
                 if(record_airdata_serials == NULL):
                     record_airdata_serials = []
@@ -165,6 +165,8 @@ def showRecordWindow():
                         record_airdata_serials.append(str(i))
                     print_log(record_airdata_serials)
                 record_location = select_raw_directory_popup()
+                write_empty_files()
+                record_mode = True
                 print_log(record_airdata_serials)
                 print_log(record_location)
 
@@ -175,18 +177,34 @@ def showRecordWindow():
             if event == "stop":
                 record_mode = False
                 timer_counter = 0
+                record_location = None
+                record_airdata_serials = NULL
                 window.close()
                 return True
     except Exception as e:
         print(e)
 
+def get_save_record_location():
+    location = record_location
+    if location == None or location == NULL or location == '':
+        location = os.getcwd()
+
+    return location
+
+def write_empty_files():
+
+    location = get_save_record_location()
+
+    for serial in record_airdata_serials:
+        with open(f"{location}/{serial}.txt", "w") as file:
+            file.write("")
+
 def save_record_datas(index, data):
 
     try:
         filename = record_airdata_serials[index]
-        location = record_location
-        if location == None or location == NULL or location == '':
-            location = os.getcwd()
+        location = get_save_record_location()
+
         save_txt(f"{location}/{filename}.txt", data)
     except Exception as e:
         print_log(f'error saving record data : {e}')
@@ -194,8 +212,6 @@ def save_record_datas(index, data):
         print_log(record_location)
         print_log(location)
         print_log(filename)
-
-    
 
 def save_txt(location, data):
     print_log('saving')
@@ -528,6 +544,7 @@ def write_capture_temp_file(data):
 
 
 def capture(ports):
+    localData = []
     try:
         print_log(len(prev_data_dict[f"{ports[0]}"]))
         if len(prev_data_dict[f"{ports[0]}"]) > 5:
@@ -539,11 +556,15 @@ def capture(ports):
         else:
             refA = 0
             refD = 0
-        localData = []
+        
         localData.append(refA)
         localData.append(refD)
+    except:
+        localData.append('NaN')
+        localData.append('NaN')
 
-        for port in ports[2:]:
+    for port in ports[2:]:
+        try:
             print_log(data_dict[f"{port}"].get().split(","))
             temp = data_dict[f"{port}"].get().split(",")[3]
             pabs = data_dict[f"{port}"].get().split(",")[4]
@@ -551,15 +572,18 @@ def capture(ports):
             localData.append(temp)
             localData.append(pabs)
             localData.append(pdiff)
+        except:
+            print_log('err')
+            localData.append('NaN')
+            localData.append('NaN')
+            localData.append('NaN')
+            print_log(localData)
 
-            # [[rafA, refB, temp1, pabs1, pdiff1, temp2, pabs2, pdiff2,], [], []]
+        # [[rafA, refB, temp1, pabs1, pdiff1, temp2, pabs2, pdiff2,], [], []]
 
-        data_for_save.append(localData)
-        write_capture_temp_file(data_for_save)
-        # print(data_for_save)
-    except Exception as e:
-        print_log("Capture Error : " + str(e))
-        return
+    data_for_save.append(localData)
+    write_capture_temp_file(data_for_save)
+    # print(data_for_save)
 
 
 def write_csv_file(file_path, data, mode, sn):
@@ -628,7 +652,14 @@ def update_gui(port, value):
         data_dict[port].Update("\n".join(map(str, prev_data_dict[port][-15:])))
     else:
         data_dict[port].Update(value)
-        data_dict2[port].Update(value)
+        # this is for record page
+        if show_record_page:
+            if port not in prev_data_dict:
+                prev_data_dict[port] = []
+            prev_data_dict[port].append(value)
+            if len(prev_data_dict[port]) > 3:
+                prev_data_dict[port].pop(0)
+            data_dict2[port].Update("\n".join(map(str, prev_data_dict[port][-3:])))
 
 
 def read_serial(port):
@@ -1124,7 +1155,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=62) as executor:
 
         if event == "Record":
             main_window.hide()
+            show_record_page = True
             record_result = showRecordWindow()
+            show_record_page = False
             if(record_result != 1):
                 os.kill(os.getpid(), signal.SIGILL)
                 sys.exit()
