@@ -25,7 +25,7 @@ record_location = None
 record_airdata_serials = NULL
 show_record_page = False
 
-def showRecordWindow():
+def showRecordWindow(executor, futures):
     global record_mode
     global record_location
     global record_airdata_serials
@@ -57,6 +57,14 @@ def showRecordWindow():
         [
             sg.Button(
                 "back",
+                size=(12, 3),
+                font=("Calibri", 14),
+                border_width=3,
+                button_color="#414141",
+                expand_x=True,
+            ),
+            sg.Button(
+                "Refresh",
                 size=(12, 3),
                 font=("Calibri", 14),
                 border_width=3,
@@ -156,6 +164,9 @@ def showRecordWindow():
             if event == sg.WINDOW_CLOSED or event == "Cancel":
                 window.close()
                 return NULL
+            
+            if event == "Refresh":
+                refresh(executor, futures)
             
             if event == "start":
                 record_airdata_serials = show_airdata_sn()
@@ -661,6 +672,28 @@ def update_gui(port, value):
                 prev_data_dict[port].pop(0)
             data_dict2[port].Update("\n".join(map(str, prev_data_dict[port][-3:])))
 
+port_history = {}
+port_history_repeat = {}
+
+def should_reset_port(port, data):
+    try:
+        prev_data = port_history[port]
+        if data == prev_data:
+            port_history_repeat[port] += 1
+        else:
+            port_history_repeat[port] = 0
+
+        port_history[port] = data
+        if port_history_repeat[port] > 5:
+            port_history_repeat[port] = 0
+            return True
+        
+        return False
+
+    except:
+        port_history[port] = data
+        port_history_repeat[port] = 0
+        return False
 
 def read_serial(port):
     airdata_index = remaining_ports.index(port) + 1
@@ -698,11 +731,18 @@ def read_serial(port):
             print_log(f"characters remaining : {ser.in_waiting}")
             line = c.strip()
             update_gui(port, line)
+            should_reset = should_reset_port(port, line)
             print_log(f"data port {port} : {line}")
             if(record_mode == True):
                 save_record_datas(airdata_index, line)
             # update_gui(port, line)
             c = ""
+
+            if should_reset == True:
+                print_log(f"PORT {port} is closed due to repeated data")
+                ser.close()
+                read_serial(port)
+                break
 
         if keyboard.is_pressed("q"):
             if press:
@@ -713,7 +753,6 @@ def read_serial(port):
             press = 0
         else:
             press = 1
-    print(f"PORT {port} is closed")
     print_log(f"PORT {port} is closed")
     ser.close()
 
@@ -1156,7 +1195,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=62) as executor:
         if event == "Record":
             main_window.hide()
             show_record_page = True
-            record_result = showRecordWindow()
+            record_result = showRecordWindow(executor, futures)
             show_record_page = False
             if(record_result != 1):
                 os.kill(os.getpid(), signal.SIGILL)
